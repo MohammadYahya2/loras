@@ -1,0 +1,119 @@
+{% extends 'boutiqe/admin/base.html' %}
+{% load static %}
+
+{% block title %}استخدامات الكوبون - لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="text-sm mb-6" aria-label="Breadcrumb">
+        <ol class="list-none p-0 inline-flex">
+            <li class="flex items-center">
+                <a href="{% url 'boutiqe:admin_dashboard' %}" class="text-gray-500 hover:text-primary transition">لوحة التحكم</a>
+                <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 5l7 7-7 7" />
+                </svg>
+            </li>
+            <li class="flex items-center">
+                <a href="{% url 'boutiqe:admin_coupons' %}" class="text-gray-500 hover:text-primary transition">كوبونات الخصم</a>
+                <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 5l7 7-7 7" />
+                </svg>
+            </li>
+            <li class="flex items-center">
+                <span class="text-primary">استخدامات الكوبون</span>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">استخدامات الكوبون: {{ coupon.code }}</h1>
+        <a href="{% url 'boutiqe:admin_coupons' %}" class="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center">
+            <i class="fas fa-arrow-right ml-2"></i>
+            العودة للقائمة
+        </a>
+    </div>
+
+    <!-- Coupon Details -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-lg font-bold mb-4 text-gray-800">تفاصيل الكوبون</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">كود الكوبون</p>
+                <p class="font-bold">{{ coupon.code }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">قيمة الخصم</p>
+                <p class="font-bold">
+                    {% if coupon.discount_type == 'percentage' %}
+                        {{ coupon.discount_value }}%
+                    {% else %}
+                        {{ coupon.discount_value }} ريال
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">عدد الاستخدامات</p>
+                <p class="font-bold">
+                    {{ coupon.current_uses }}/{{ coupon.max_uses }}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">الحالة</p>
+                <p>
+                    {% if coupon.is_active %}
+                        {% if coupon.is_valid %}
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">نشط</span>
+                        {% else %}
+                            <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">منتهي</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">غير نشط</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Usage List -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-6">
+            <h2 class="text-lg font-bold mb-4 text-gray-800">سجل الاستخدام</h2>
+            
+            {% if usages %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-gray-100 text-gray-800">
+                            <tr>
+                                <th class="py-3 px-4 text-right font-semibold">المستخدم</th>
+                                <th class="py-3 px-4 text-right font-semibold">وقت الاستخدام</th>
+                                <th class="py-3 px-4 text-right font-semibold">قيمة الطلب</th>
+                                <th class="py-3 px-4 text-right font-semibold">قيمة الخصم</th>
+                                <th class="py-3 px-4 text-right font-semibold">المبلغ بعد الخصم</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for usage in usages %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4">{{ usage.user.username }}</td>
+                                    <td class="py-3 px-4">{{ usage.used_at|date:"Y-m-d H:i" }}</td>
+                                    <td class="py-3 px-4">{{ usage.order_value }} ريال</td>
+                                    <td class="py-3 px-4 text-primary font-bold">{{ usage.discount_value }} ريال</td>
+                                    <td class="py-3 px-4">{{ usage.order_value|sub:usage.discount_value }} ريال</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <div class="text-gray-400 text-5xl mb-4">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">لم يتم استخدام هذا الكوبون بعد</h3>
+                    <p class="text-gray-500">لم يقم أي مستخدم باستخدام هذا الكوبون حتى الآن</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

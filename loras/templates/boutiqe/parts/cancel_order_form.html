@@ -1,0 +1,35 @@
+{% csrf_token %}
+<div class="mb-6">
+    <h3 class="text-lg font-bold text-gray-800 mb-3">طلب إلغاء الطلب #{{ order_id }}</h3>
+    <p class="text-gray-600 text-sm mb-4">سيقوم فريق خدمة العملاء بمراجعة طلبك والتواصل معك على الرقم المقدم.</p>
+    
+    <div class="space-y-4">
+        <div>
+            <label for="id_reason" class="block text-gray-700 text-sm font-bold mb-2">{{ form.reason.label }} <span class="text-red-600">*</span></label>
+            {{ form.reason }}
+            {% if form.reason.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ form.reason.errors }}</p>
+            {% endif %}
+        </div>
+        
+        <div>
+            <label for="id_phone" class="block text-gray-700 text-sm font-bold mb-2">{{ form.phone.label }} <span class="text-red-600">*</span></label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ form.phone.errors }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="flex justify-between items-center">
+    <p class="text-gray-500 text-xs"><span class="text-red-600">*</span> حقول إلزامية</p>
+    <div class="flex space-x-2 space-x-reverse">
+        <button type="button" id="close-cancel-form-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-md text-sm">
+            إلغاء
+        </button>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm">
+            تأكيد طلب الإلغاء
+        </button>
+    </div>
+</div> 

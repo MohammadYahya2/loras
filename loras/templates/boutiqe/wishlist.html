@@ -1,0 +1,185 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}المفضلة - بوتيك لوراس{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-primary">المفضلة</span>
+                </li>
+            </ol>
+        </nav>
+        
+        <!-- Page Title -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">المفضلة</h1>
+            <p class="text-gray-600">المنتجات المفضلة لديك</p>
+        </div>
+        
+        {% if wishlist_items %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-lg font-bold mb-4">المنتجات المفضلة (<span id="wishlist-count">{{ wishlist_items|length }}</span>)</h2>
+                    
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {% for item in wishlist_items %}
+                                <div class="wishlist-item bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition duration-300" id="wishlist-item-{{ item.id }}">
+                                    <!-- Product Image -->
+                                    <div class="relative">
+                                        <a href="{% url 'boutiqe:product_detail' item.product.slug %}">
+                                            <div class="h-56 overflow-hidden">
+                                                {% if item.product.images.first %}
+                                                    {% with main_image=False %}
+                                                        {% for image in item.product.images.all %}
+                                                            {% if image.is_main and not main_image %}
+                                                                <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition duration-300 hover:scale-105">
+                                                                {% with main_image=True %}{% endwith %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not main_image %}
+                                                            <img src="{% url 'boutiqe:serve_media' item.product.images.first.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition duration-300 hover:scale-105">
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                        <i class="fas fa-image text-4xl text-gray-400"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </a>
+                                        
+                                        {% if item.product.discount_price %}
+                                            <div class="absolute top-2 left-2 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
+                                                خصم {{ item.product.get_discount_percent }}%
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md transition" onclick="removeWishlistItem(event, {{ item.id }})">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Product Details -->
+                                    <div class="p-4">
+                                        <a href="{% url 'boutiqe:product_detail' item.product.slug %}" class="block text-lg font-bold text-gray-800 hover:text-primary transition mb-2">{{ item.product.name }}</a>
+                                        
+                                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ item.product.description|truncatechars:80 }}</p>
+                                        
+                                        <div class="mb-4">
+                                            {% if item.product.discount_price %}
+                                                <span class="text-primary font-bold">{{ item.product.discount_price }} ر.س</span>
+                                                <span class="text-gray-500 line-through text-sm mr-2">{{ item.product.price }} ر.س</span>
+                                            {% else %}
+                                                <span class="text-primary font-bold">{{ item.product.price }} ر.س</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="flex space-x-2 space-x-reverse">
+                                            <a href="{% url 'boutiqe:move_to_cart' item.id %}" class="flex-1 bg-primary hover:bg-secondary text-white text-center font-medium py-2 rounded-md transition duration-300">
+                                                <i class="fas fa-shopping-cart ml-1"></i>إضافة للسلة
+                                            </a>
+                                            <a href="{% url 'boutiqe:product_detail' item.product.slug %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-3 rounded-md transition duration-300">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="mt-6 flex flex-col sm:flex-row justify-between gap-4">
+                <a href="{% url 'boutiqe:product_list' %}" class="flex items-center justify-center sm:justify-start text-primary font-medium hover:text-secondary transition">
+                    <i class="fas fa-arrow-right ml-2"></i>
+                    مواصلة التسوق
+                </a>
+                
+                <button id="clear-wishlist" class="flex items-center justify-center sm:justify-start text-gray-500 font-medium hover:text-red-500 transition">
+                    <i class="fas fa-trash-alt ml-2"></i>
+                    إفراغ المفضلة
+                </button>
+            </div>
+        {% else %}
+            <!-- Empty Wishlist -->
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <div class="text-gray-400 text-6xl mb-4">
+                    <i class="far fa-heart"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-700 mb-2">المفضلة فارغة</h2>
+                <p class="text-gray-600 mb-6">لم تقم بإضافة أي منتج إلى قائمة المفضلة</p>
+                <a href="{% url 'boutiqe:product_list' %}" class="inline-block bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-md transition duration-300">
+                    تسوقي الآن
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function removeWishlistItem(event, itemId) {
+        event.preventDefault();
+        
+        fetch(`{% url 'boutiqe:remove_from_wishlist' 0 %}`.replace('0', itemId), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove item from DOM
+            document.getElementById(`wishlist-item-${itemId}`).remove();
+            
+            // Update wishlist count
+            const wishlistCount = document.getElementById('wishlist-count');
+            if (wishlistCount) {
+                wishlistCount.textContent = data.wishlist_count;
+            }
+            
+            // Check if wishlist is empty
+            if (data.wishlist_count === 0) {
+                location.reload(); // Reload to show empty wishlist message
+            }
+        });
+    }
+    
+    // Clear Wishlist
+    document.getElementById('clear-wishlist')?.addEventListener('click', function() {
+        if (confirm('هل أنت متأكد من رغبتك في إفراغ قائمة المفضلة؟')) {
+            const wishlistItems = document.querySelectorAll('.wishlist-item');
+            const removePromises = [];
+            
+            wishlistItems.forEach(item => {
+                const itemId = item.id.replace('wishlist-item-', '');
+                const promise = fetch(`{% url 'boutiqe:remove_from_wishlist' 0 %}`.replace('0', itemId), {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                removePromises.push(promise);
+            });
+            
+            Promise.all(removePromises).then(() => {
+                location.reload();
+            });
+        }
+    });
+</script>
+{% endblock %} 

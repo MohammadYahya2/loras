@@ -1,0 +1,665 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}سلة التسوق - بوتيك لوراس{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* تنسيق النافذة المنبثقة */
+    .notification-popup {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 16px;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        font-size: 0.875rem;
+        max-width: 90%;
+        text-align: center;
+        border-right: 3px solid #10B981;
+    }
+    
+    /* تنسيق خاص للموبايل */
+    @media (max-width: 640px) {
+        .notification-popup {
+            width: auto;
+            max-width: 85%;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+        
+        /* تغيير موضع الإشعار على الموبايل */
+        .cart-update-notification {
+            top: 10px;
+        }
+    }
+    
+    /* تنسيق للعملة */
+    .currency-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        background-color: #f3f4f6;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin-right: 5px;
+        color: #6b7280;
+    }
+    
+    /* تنسيق أزرار الكمية */
+    .quantity-btn {
+        transition: all 0.2s ease;
+    }
+    
+    .quantity-btn:hover {
+        background-color: #e5e7eb;
+    }
+    
+    .quantity-btn:active {
+        transform: scale(0.95);
+    }
+    
+    /* تظليل للعناصر عند المرور عليها */
+    .cart-item {
+        transition: background-color 0.3s ease;
+    }
+    
+    .cart-item:hover {
+        background-color: #f9fafb;
+    }
+    
+    /* تنسيق سعر الخصم */
+    .discount-price {
+        color: #10B981;
+        font-weight: bold;
+    }
+    
+    .original-price {
+        text-decoration: line-through;
+        color: #9ca3af;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-primary">سلة التسوق</span>
+                </li>
+            </ol>
+        </nav>
+        
+        <!-- Page Title -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">سلة التسوق</h1>
+            <p class="text-gray-600">مراجعة المنتجات في سلة التسوق الخاصة بك</p>
+            <div class="mt-2 text-sm text-gray-500">جميع الأسعار معروضة بالشيكل (₪)</div>
+        </div>
+        
+        {% csrf_token %}
+        
+        {% if cart_items %}
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Cart Items -->
+                <div class="lg:w-2/3">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-lg font-bold mb-4">المنتجات (<span id="cart-count">{{ cart_items|length }}</span>)</h2>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                {% for item in cart_items %}
+                                    <div class="cart-item flex flex-col md:flex-row py-6 border-b border-gray-200" id="cart-item-{{ item.id }}">
+                                        <!-- Product Image -->
+                                        <div class="md:w-1/4 mb-4 md:mb-0">
+                                            <div class="h-32 w-32 md:h-40 md:w-40 rounded-md overflow-hidden">
+                                                {% if item.product.images.first %}
+                                                    {% with main_image=False %}
+                                                        {% for image in item.product.images.all %}
+                                                            {% if image.is_main and not main_image %}
+                                                                <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                                                                {% with main_image=True %}{% endwith %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not main_image %}
+                                                            <img src="{% url 'boutiqe:serve_media' item.product.images.first.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                        <i class="fas fa-image text-3xl text-gray-400"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Product Details -->
+                                        <div class="md:w-3/4 md:pl-6 flex flex-col justify-between">
+                                            <div>
+                                                <div class="flex justify-between">
+                                                    <a href="{% url 'boutiqe:product_detail' item.product.slug %}" class="text-lg font-bold text-gray-800 hover:text-primary transition mb-1">{{ item.product.name }}</a>
+                                                    <a href="{% url 'boutiqe:remove_from_cart_by_id' item.id %}" class="text-gray-400 hover:text-red-500 transition" onclick="removeCartItem(event, {{ item.id }})">
+                                                        <i class="fas fa-times"></i>
+                                                    </a>
+                                                </div>
+                                                
+                                                <div class="text-gray-600 text-sm mb-2">
+                                                    {% if item.color %}
+                                                        <span class="ml-2">اللون: <span class="font-medium">{{ item.color.name }}</span></span>
+                                                    {% endif %}
+                                                    
+                                                    {% if item.size %}
+                                                        <span class="ml-2">المقاس: <span class="font-medium">{{ item.size.name }}</span></span>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <div class="mb-4">
+                                                    <div class="flex items-center">
+                                                        <span class="currency-badge">₪</span>
+                                                    {% if item.product.discount_price %}
+                                                            <span class="discount-price" id="price-ils-{{ item.id }}">{{ item.price_ils }}</span>
+                                                            <span class="original-price mr-2" id="original-price-ils-{{ item.id }}">({{ item.product.price|floatformat:2 }} ر.س)</span>
+                                                            <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full mr-2">خصم {{ item.product.get_discount_percent }}%</span>
+                                                    {% else %}
+                                                            <span class="discount-price" id="price-ils-{{ item.id }}">{{ item.price_ils }}</span>
+                                                    {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex justify-between items-center">
+                                                <!-- Quantity -->
+                                                <div class="flex items-center">
+                                                    <label class="sr-only">الكمية</label>
+                                                    <button type="button" class="quantity-btn decrease bg-gray-100 text-gray-700 hover:bg-gray-200 h-10 w-10 rounded-r-md flex items-center justify-center" onclick="updateQuantity({{ item.id }}, -1)">
+                                                        <i class="fas fa-minus text-xs"></i>
+                                                    </button>
+                                                    <input type="number" value="{{ item.quantity }}" min="1" class="h-10 w-14 border-y border-gray-300 text-center focus:outline-none" id="quantity-{{ item.id }}" onchange="updateCartItem({{ item.id }}, this.value)">
+                                                    <button type="button" class="quantity-btn increase bg-gray-100 text-gray-700 hover:bg-gray-200 h-10 w-10 rounded-l-md flex items-center justify-center" onclick="updateQuantity({{ item.id }}, 1)">
+                                                        <i class="fas fa-plus text-xs"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Total -->
+                                                <div class="text-right">
+                                                    <div class="text-sm text-gray-600">الإجمالي:</div>
+                                                    <div class="text-lg font-bold text-primary flex items-center">
+                                                        <span class="currency-badge">₪</span>
+                                                        <span id="item-total-ils-{{ item.id }}">{{ item.total_price_ils }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Continue Shopping -->
+                    <div class="mt-6 flex justify-between">
+                        <a href="{% url 'boutiqe:product_list' %}" class="flex items-center text-primary font-medium hover:text-secondary transition">
+                            <i class="fas fa-arrow-right ml-2"></i>
+                            مواصلة التسوق
+                        </a>
+                        
+                        <button id="clear-cart" class="flex items-center text-gray-500 font-medium hover:text-red-500 transition">
+                            <i class="fas fa-trash-alt ml-2"></i>
+                            إفراغ السلة
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="lg:w-1/3">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden sticky top-24 border border-gray-100">
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold mb-6 text-gray-800">ملخص الطلب</h2>
+                            
+                            <div class="space-y-4 mb-6">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">إجمالي المنتجات:</span>
+                                    <span class="font-bold">{{ cart_items|length }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">المجموع الفرعي:</span>
+                                    <div class="font-bold flex items-center">
+                                        <span class="currency-badge">₪</span>
+                                        <span id="subtotal-ils">{{ total_ils }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">الشحن:</span>
+                                    <span class="font-bold text-green-600">مجاني</span>
+                                </div>
+                                
+                                <!-- Coupon Code -->
+                                <div class="mb-6">
+                                    <label for="coupon" class="block text-sm font-medium text-gray-700 mb-2">كود الخصم</label>
+                                    <div class="flex">
+                                        <input type="text" id="coupon" name="coupon" placeholder="أدخل كود الخصم" class="flex-1 px-4 py-3 border border-gray-300 rounded-r-md focus:outline-none focus:ring-primary focus:border-primary">
+                                        <button id="apply-coupon" class="bg-primary hover:bg-secondary text-white font-medium px-4 py-3 rounded-l-md transition duration-300">تطبيق</button>
+                                    </div>
+                                    <div id="coupon-message" class="mt-2 text-sm hidden"></div>
+                                </div>
+                                
+                                <!-- Applied Coupon -->
+                                <div id="applied-coupon-container" class="{% if not coupon_code %}hidden{% endif %} mb-6">
+                                    <div class="bg-green-50 p-4 rounded-md border border-green-200">
+                                        <div class="flex items-start">
+                                            <div class="mr-3 flex-1">
+                                                <h3 class="text-sm font-medium text-green-800 flex justify-between">
+                                                    <span>كوبون: <span id="active-coupon-code">{{ coupon_code }}</span></span>
+                                                    <button id="remove-coupon" class="text-red-500 hover:text-red-700" title="إزالة الكوبون">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </h3>
+                                                <div class="mt-1 text-sm text-green-700">
+                                                    <p class="text-green-600">تم تطبيق خصم بقيمة <span id="coupon-discount">{{ coupon_discount_ils }}</span> شيكل</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4 mt-2">
+                                <div class="flex justify-between">
+                                    <span class="text-lg font-bold text-gray-800">الإجمالي:</span>
+                                    <div class="text-lg font-bold text-primary flex items-center">
+                                        <span class="currency-badge">₪</span>
+                                        <span id="cart-total-ils">{{ final_total_ils }}</span>
+                                    </div>
+                                </div>
+
+                                {% if coupon_code %}
+                                <div class="flex justify-between mt-2 text-sm">
+                                    <span class="text-gray-600">السعر الأصلي:</span>
+                                    <div class="text-gray-600 flex items-center">
+                                        <span class="currency-badge">₪</span>
+                                        <span id="original-total-ils">{{ total_ils }}</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Checkout Button -->
+                            <a href="{% url 'boutiqe:checkout' %}" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white text-center font-bold py-4 px-8 rounded-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex justify-center items-center">
+                                <i class="fas fa-credit-card ml-2"></i>
+                                إتمام الطلب - <span class="currency-badge bg-white text-primary ml-1">₪</span><span id="checkout-total">{{ final_total_ils }}</span>
+                            </a>
+                            
+                            <!-- Payment Methods -->
+                            <div class="mt-6">
+                                <p class="text-sm text-gray-600 mb-2">نحن نقبل:</p>
+                                <div class="flex items-center space-x-3 space-x-reverse justify-center">
+                                    <i class="fab fa-cc-visa text-2xl text-blue-700"></i>
+                                    <i class="fab fa-cc-mastercard text-2xl text-red-600"></i>
+                                    <i class="fab fa-cc-apple-pay text-2xl text-gray-900"></i>
+                                    <i class="fab fa-cc-paypal text-2xl text-blue-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Empty Cart -->
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <div class="text-gray-400 text-6xl mb-4">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-700 mb-2">سلة التسوق فارغة</h2>
+                <p class="text-gray-600 mb-6">لم تقم بإضافة أي منتج إلى سلة التسوق</p>
+                <a href="{% url 'boutiqe:product_list' %}" class="inline-block bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-md transition duration-300">
+                    تسوقي الآن
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateQuantity(itemId, change) {
+        const input = document.getElementById(`quantity-${itemId}`);
+        let value = parseInt(input.value) + change;
+        
+        if (value < 1) value = 1;
+        
+        input.value = value;
+        updateCartItem(itemId, value);
+    }
+    
+    function updateCartItem(itemId, quantity) {
+        const loadingIndicator = showLoadingIndicator(itemId);
+        
+        fetch(`{% url 'boutiqe:update_cart_item_by_id' 0 %}`.replace('0', itemId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: `quantity=${quantity}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            // إزالة مؤشر التحميل
+            hideLoadingIndicator(loadingIndicator);
+            
+            // تحديث سعر المنتج للوحدة × الكمية
+            document.getElementById(`item-total-ils-${itemId}`).textContent = data.item_total_ils;
+            
+            // تحديث إجماليات السلة
+            document.getElementById('subtotal-ils').textContent = data.cart_total_ils;
+            document.getElementById('cart-total-ils').textContent = data.cart_total_ils;
+            document.getElementById('checkout-total').textContent = data.cart_total_ils;
+            
+            // تحديث عدد منتجات السلة
+            document.getElementById('cart-count').textContent = data.cart_count;
+            
+            // إظهار إشعار النجاح
+            showSmallNotification('تم تحديث كمية المنتج', 'success');
+        })
+        .catch(error => {
+            console.error('Error updating cart:', error);
+            hideLoadingIndicator(loadingIndicator);
+            showSmallNotification('حدث خطأ أثناء تحديث السلة', 'danger');
+        });
+    }
+    
+    function showLoadingIndicator(itemId) {
+        // إنشاء مؤشر تحميل بسيط
+        const loadingElement = document.createElement('div');
+        loadingElement.className = 'loading-indicator absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 rounded-lg';
+        loadingElement.innerHTML = '<div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>';
+        
+        // إضافة المؤشر إلى عنصر المنتج
+        const itemElement = document.getElementById(`cart-item-${itemId}`);
+        itemElement.style.position = 'relative';
+        itemElement.appendChild(loadingElement);
+        
+        return loadingElement;
+    }
+    
+    function hideLoadingIndicator(loadingElement) {
+        if (loadingElement && loadingElement.parentNode) {
+            loadingElement.parentNode.removeChild(loadingElement);
+        }
+    }
+    
+    function removeCartItem(event, itemId) {
+        event.preventDefault();
+        
+        const itemElement = document.getElementById(`cart-item-${itemId}`);
+        itemElement.style.position = 'relative';
+        
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'loading-indicator absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 rounded-lg';
+        loadingIndicator.innerHTML = '<div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>';
+        itemElement.appendChild(loadingIndicator);
+        
+        fetch(`{% url 'boutiqe:remove_from_cart_by_id' 0 %}`.replace('0', itemId), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // إزالة المنتج من الواجهة
+                itemElement.style.transition = 'all 0.5s ease';
+                itemElement.style.opacity = '0';
+                itemElement.style.maxHeight = '0';
+                itemElement.style.overflow = 'hidden';
+                
+                setTimeout(() => {
+                    itemElement.remove();
+                    
+                    // تحديث إجماليات السلة
+                    document.getElementById('subtotal-ils').textContent = data.cart_total_ils;
+                    document.getElementById('cart-total-ils').textContent = data.cart_total_ils;
+                    document.getElementById('checkout-total').textContent = data.cart_total_ils;
+                    
+                    // تحديث عدد منتجات السلة
+                    document.getElementById('cart-count').textContent = data.cart_count;
+                    
+                    // التحقق مما إذا كانت السلة فارغة
+                    if (data.cart_count === 0) {
+                        location.reload();
+                    }
+                    
+                    // إظهار إشعار النجاح
+                    showSmallNotification('تم إزالة المنتج من السلة', 'danger');
+                }, 500);
+            }
+        })
+        .catch(error => {
+            console.error('Error removing item:', error);
+            itemElement.removeChild(loadingIndicator);
+            showSmallNotification('حدث خطأ أثناء إزالة المنتج', 'danger');
+        });
+    }
+    
+    // عرض الإشعارات المصغرة
+    function showSmallNotification(message, type) {
+        // إزالة أي إشعارات موجودة
+        const existingNotifications = document.querySelectorAll('.notification-popup');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        // إنشاء الإشعار الجديد
+        const notification = document.createElement('div');
+        notification.className = `notification-popup cart-update-notification`;
+        
+        // تحديد لون الإشعار حسب نوعه
+        if (type === 'success') {
+            notification.style.borderRightColor = '#10B981';
+        } else if (type === 'danger') {
+            notification.style.borderRightColor = '#EF4444';
+        }
+        
+        // إضافة أيقونة مناسبة
+        const icon = type === 'success' ? 
+            '<i class="fas fa-check-circle text-green-500 ml-1"></i>' : 
+            '<i class="fas fa-times-circle text-red-500 ml-1"></i>';
+            
+        notification.innerHTML = `${icon}${message}`;
+        
+        // إضافة الإشعار للصفحة
+        document.body.appendChild(notification);
+        
+        // تأثير التلاشي بعد فترة
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translate(-50%, -10px)';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 2000);
+        
+        // إظهار الإشعار بتأثير انتقالي
+        notification.style.opacity = '0';
+        notification.style.transform = 'translate(-50%, 10px)';
+        setTimeout(() => {
+            notification.style.transition = 'all 0.3s ease';
+            notification.style.opacity = '1';
+            notification.style.transform = 'translate(-50%, 0)';
+        }, 10);
+    }
+    
+    // التعامل مع إفراغ السلة
+    document.getElementById('clear-cart').addEventListener('click', function() {
+        if (confirm('هل أنت متأكد من رغبتك في إفراغ السلة؟')) {
+            // إظهار مؤشر تحميل
+            const cartItems = document.querySelectorAll('.cart-item');
+            cartItems.forEach(item => {
+                item.style.opacity = '0.5';
+            });
+            
+            fetch('{% url "boutiqe:clear_cart" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // إظهار إشعار النجاح
+                    showSmallNotification('تم إفراغ السلة بنجاح', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error clearing cart:', error);
+                // إعادة تعتيم المنتجات
+                cartItems.forEach(item => {
+                    item.style.opacity = '1';
+                });
+                showSmallNotification('حدث خطأ أثناء إفراغ السلة', 'danger');
+            });
+        }
+    });
+    
+    // Handle coupon application
+    document.getElementById('apply-coupon').addEventListener('click', function() {
+        const couponInput = document.getElementById('coupon');
+        const couponCode = couponInput.value.trim();
+        
+        if (!couponCode) {
+            showCouponMessage('يرجى إدخال كود الكوبون', 'error');
+            return;
+        }
+        
+        // إظهار مؤشر تحميل
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        this.disabled = true;
+        
+        const formData = new FormData();
+        formData.append('coupon_code', couponCode);
+        
+        // FormData will set the Content-Type automatically with boundary
+        fetch('{% url "boutiqe:apply_coupon" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // استعادة زر التطبيق
+            document.getElementById('apply-coupon').innerHTML = 'تطبيق';
+            document.getElementById('apply-coupon').disabled = false;
+            
+            if (data.success) {
+                // إظهار رسالة النجاح
+                showCouponMessage(data.message, 'success');
+                
+                // إظهار قسم الكوبون المطبق
+                document.getElementById('applied-coupon-container').classList.remove('hidden');
+                document.getElementById('active-coupon-code').textContent = couponCode;
+                document.getElementById('coupon-discount').textContent = data.discount_amount_ils;
+                
+                // تحديث إجماليات السلة
+                document.getElementById('cart-total-ils').textContent = data.final_total_ils;
+                document.getElementById('checkout-total').textContent = data.final_total_ils;
+                
+                // عرض السعر الأصلي
+                if (document.getElementById('original-total-ils')) {
+                    document.getElementById('original-total-ils').textContent = data.cart_total_ils;
+                }
+                
+                // مسح حقل الإدخال
+                couponInput.value = '';
+                
+                // إظهار إشعار النجاح
+                showSmallNotification('تم تطبيق الكوبون بنجاح', 'success');
+            } else {
+                // إظهار رسالة الخطأ
+                showCouponMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error applying coupon:', error);
+            // استعادة زر التطبيق
+            document.getElementById('apply-coupon').innerHTML = 'تطبيق';
+            document.getElementById('apply-coupon').disabled = false;
+            
+            // إظهار رسالة الخطأ
+            showCouponMessage('حدث خطأ أثناء تطبيق الكوبون', 'error');
+        });
+    });
+    
+    // Handle coupon removal
+    document.getElementById('remove-coupon').addEventListener('click', function() {
+        // إظهار مؤشر تحميل
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        // Use FormData instead of JSON for consistency
+        const formData = new FormData();
+        
+        fetch('{% url "boutiqe:remove_coupon" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // إخفاء قسم الكوبون المطبق
+                document.getElementById('applied-coupon-container').classList.add('hidden');
+                
+                // تحديث إجماليات السلة
+                document.getElementById('cart-total-ils').textContent = data.cart_total_ils;
+                document.getElementById('checkout-total').textContent = data.cart_total_ils;
+                
+                // إظهار إشعار النجاح
+                showSmallNotification('تم إزالة الكوبون', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing coupon:', error);
+            // استعادة زر الإزالة
+            this.innerHTML = '<i class="fas fa-times"></i>';
+            
+            // إظهار إشعار الخطأ
+            showSmallNotification('حدث خطأ أثناء إزالة الكوبون', 'danger');
+        });
+    });
+    
+    // عرض رسالة الكوبون
+    function showCouponMessage(message, type) {
+        const messageContainer = document.getElementById('coupon-message');
+        messageContainer.classList.remove('hidden', 'text-red-600', 'text-green-600');
+        
+        if (type === 'error') {
+            messageContainer.classList.add('text-red-600');
+            messageContainer.innerHTML = `<i class="fas fa-exclamation-circle ml-1"></i>${message}`;
+        } else {
+            messageContainer.classList.add('text-green-600');
+            messageContainer.innerHTML = `<i class="fas fa-check-circle ml-1"></i>${message}`;
+        }
+    }
+</script>
+{% endblock %} 

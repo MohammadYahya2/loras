@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}لوحة تحكم الأدمن - بوتيك لوراس{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Cairo Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .admin-sidebar {
+            width: 280px;
+        }
+        
+        @media (max-width: 1024px) {
+            .admin-sidebar {
+                width: 0;
+                transition: width 0.3s;
+            }
+            
+            .admin-sidebar.open {
+                width: 280px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Top Navigation -->
+    <nav class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <a href="{% url 'boutiqe:admin_dashboard' %}" class="text-xl font-bold">إدارة بوتيك</a>
+                    </div>
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4 space-x-reverse">
+                            <a href="{% url 'boutiqe:admin_dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                                لوحة التحكم
+                            </a>
+                            <a href="{% url 'boutiqe:admin_products' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'admin_products' or request.resolver_match.url_name == 'admin_product_create' or request.resolver_match.url_name == 'admin_product_edit' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                                المنتجات
+                            </a>
+                            <a href="{% url 'boutiqe:admin_orders' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'admin_orders' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                                الطلبات
+                            </a>
+                            <a href="{% url 'boutiqe:admin_users' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'admin_users' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                                المستخدمين
+                            </a>
+                            <a href="{% url 'boutiqe:admin_trending_collections' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'admin_trending_collections' or request.resolver_match.url_name == 'admin_trending_collection_create' or request.resolver_match.url_name == 'admin_trending_collection_edit' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                                المجموعات الرائجة
+                            </a>
+                            <a href="{% url 'boutiqe:admin_discounts' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'admin_discounts' or request.resolver_match.url_name == 'admin_discount_create' or request.resolver_match.url_name == 'admin_discount_edit' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                                الخصومات
+                            </a>
+                            <a href="{% url 'boutiqe:admin_coupons' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'admin_coupons' or request.resolver_match.url_name == 'admin_coupon_create' or request.resolver_match.url_name == 'admin_coupon_edit' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                                كوبونات الخصم
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <a href="{% url 'boutiqe:home' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home ml-1"></i>
+                            زيارة الموقع
+                        </a>
+                        <a href="{% url 'boutiqe:logout' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-sign-out-alt ml-1"></i>
+                            تسجيل الخروج
+                        </a>
+                    </div>
+                </div>
+                <div class="-ml-2 flex md:hidden">
+                    <!-- Mobile menu button -->
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="{% url 'boutiqe:admin_dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    لوحة التحكم
+                </a>
+                <a href="{% url 'boutiqe:admin_products' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'admin_products' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    المنتجات
+                </a>
+                <a href="{% url 'boutiqe:admin_orders' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'admin_orders' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    الطلبات
+                </a>
+                <a href="{% url 'boutiqe:admin_users' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'admin_users' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    المستخدمين
+                </a>
+                <a href="{% url 'boutiqe:admin_trending_collections' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'admin_trending_collections' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    المجموعات الرائجة
+                </a>
+                <a href="{% url 'boutiqe:admin_discounts' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'admin_discounts' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    الخصومات
+                </a>
+                <a href="{% url 'boutiqe:admin_coupons' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'admin_coupons' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    كوبونات الخصم
+                </a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700">
+                <div class="flex items-center px-5">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-circle text-2xl text-gray-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-base font-medium leading-none text-white">{{ request.user.username }}</div>
+                        <div class="text-sm font-medium leading-none text-gray-400">{{ request.user.email }}</div>
+                    </div>
+                </div>
+                <div class="mt-3 px-2 space-y-1">
+                    <a href="{% url 'boutiqe:home' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
+                        <i class="fas fa-home ml-1"></i>
+                        زيارة الموقع
+                    </a>
+                    <a href="{% url 'boutiqe:logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
+                        <i class="fas fa-sign-out-alt ml-1"></i>
+                        تسجيل الخروج
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="admin-sidebar bg-white shadow-md fixed h-screen overflow-y-auto py-6 z-10">
+            <div class="px-6 mb-8">
+                <a href="{% url 'boutiqe:home' %}" class="flex items-center text-primary hover:text-secondary transition">
+                    <i class="fas fa-store ml-2"></i>
+                    <span>العودة للموقع</span>
+                </a>
+            </div>
+            
+            <nav>
+                <div class="px-6 mb-4">
+                    <h3 class="text-xs uppercase tracking-wider text-gray-500 font-semibold">القائمة الرئيسية</h3>
+                </div>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'boutiqe:admin_dashboard' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                            <i class="fas fa-tachometer-alt w-5 text-center ml-3"></i>
+                            <span>لوحة التحكم</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'boutiqe:admin_products' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition {% if request.resolver_match.url_name == 'admin_products' or request.resolver_match.url_name == 'admin_product_create' or request.resolver_match.url_name == 'admin_product_edit' %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                            <i class="fas fa-box-open w-5 text-center ml-3"></i>
+                            <span>المنتجات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'boutiqe:admin_categories' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition {% if request.resolver_match.url_name == 'admin_categories' %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                            <i class="fas fa-folder w-5 text-center ml-3"></i>
+                            <span>الفئات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'boutiqe:admin_trending_collections' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition {% if request.resolver_match.url_name == 'admin_trending_collections' or request.resolver_match.url_name == 'admin_trending_collection_create' or request.resolver_match.url_name == 'admin_trending_collection_edit' %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                            <i class="fas fa-fire w-5 text-center ml-3"></i>
+                            <span>المجموعات الرائجة</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'boutiqe:admin_discounts' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition {% if request.resolver_match.url_name == 'admin_discounts' or request.resolver_match.url_name == 'admin_discount_create' or request.resolver_match.url_name == 'admin_discount_edit' %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                            <i class="fas fa-percent w-5 text-center ml-3"></i>
+                            <span>الخصومات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'boutiqe:admin_coupons' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition {% if request.resolver_match.url_name == 'admin_coupons' or request.resolver_match.url_name == 'admin_coupon_create' or request.resolver_match.url_name == 'admin_coupon_edit' or request.resolver_match.url_name == 'admin_coupon_usage' %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                            <i class="fas fa-ticket-alt w-5 text-center ml-3"></i>
+                            <span>كوبونات الخصم</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'boutiqe:admin_users' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition {% if request.resolver_match.url_name == 'admin_users' %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                            <i class="fas fa-users w-5 text-center ml-3"></i>
+                            <span>المستخدمين</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="px-6 mt-8 mb-4">
+                    <h3 class="text-xs uppercase tracking-wider text-gray-500 font-semibold">إعدادات أخرى</h3>
+                </div>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition">
+                            <i class="fas fa-cog w-5 text-center ml-3"></i>
+                            <span>الإعدادات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition">
+                            <i class="fas fa-palette w-5 text-center ml-3"></i>
+                            <span>تخصيص الموقع</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary hover:bg-opacity-10 hover:text-primary transition">
+                            <i class="fas fa-chart-bar w-5 text-center ml-3"></i>
+                            <span>التقارير</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 lg:mr-80 pt-6 pb-12 px-4">
+            {% if messages %}
+                <div class="container mx-auto px-4 mb-6">
+                    {% for message in messages %}
+                        <div class="p-4 mb-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar Toggle for Mobile
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                });
+                
+                // Close sidebar when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (e.target !== sidebar && !sidebar.contains(e.target) && e.target !== sidebarToggle && !sidebarToggle.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                    }
+                });
+            }
+            
+            // Dropdown Toggles
+            const profileDropdown = document.getElementById('profile-dropdown');
+            const notificationsDropdown = document.getElementById('notifications-dropdown');
+            
+            // TODO: Add dropdown functionality if needed
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

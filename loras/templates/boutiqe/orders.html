@@ -1,0 +1,563 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}طلباتي - بوتيك لوراس{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:profile' %}" class="text-gray-500 hover:text-primary transition">الملف الشخصي</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-primary">طلباتي</span>
+                </li>
+            </ol>
+        </nav>
+        
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">طلباتي</h1>
+                    <p class="text-gray-600">تابع طلباتك واطلع على حالة كل طلب</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <a href="{% url 'boutiqe:product_list' %}" class="inline-flex items-center bg-primary hover:bg-secondary text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        <i class="fas fa-plus-circle ml-2"></i>
+                        طلب جديد
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Currency Selection and Filters -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap mb-4 md:mb-0">
+                    <a href="{% url 'boutiqe:orders' %}" class="{% if not request.GET.status %}bg-primary text-white{% else %}bg-white text-gray-700 border border-gray-300{% endif %} px-4 py-2 rounded-md ml-2 mb-2 hover:bg-gray-50">
+                        الكل <span class="{% if not request.GET.status %}bg-white text-primary{% else %}bg-primary bg-opacity-10 text-primary{% endif %} rounded-full px-2 py-0.5 text-xs mr-1">{{ order_stats.all }}</span>
+                    </a>
+                    <a href="{% url 'boutiqe:orders' %}?status=delivered" class="{% if request.GET.status == 'delivered' %}bg-primary text-white{% else %}bg-white text-gray-700 border border-gray-300{% endif %} px-4 py-2 rounded-md ml-2 mb-2 hover:bg-gray-50">
+                        تم التوصيل <span class="{% if request.GET.status == 'delivered' %}bg-white text-primary{% else %}bg-green-100 text-green-600{% endif %} rounded-full px-2 py-0.5 text-xs mr-1">{{ order_stats.delivered }}</span>
+                    </a>
+                    <a href="{% url 'boutiqe:orders' %}?status=cancelled" class="{% if request.GET.status == 'cancelled' %}bg-primary text-white{% else %}bg-white text-gray-700 border border-gray-300{% endif %} px-4 py-2 rounded-md mb-2 hover:bg-gray-50">
+                        ملغي <span class="{% if request.GET.status == 'cancelled' %}bg-white text-primary{% else %}bg-red-100 text-red-600{% endif %} rounded-full px-2 py-0.5 text-xs mr-1">{{ order_stats.cancelled }}</span>
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    <!-- البحث -->
+                    <div class="relative">
+                        <input type="text" placeholder="البحث في الطلبات..." class="w-full md:w-64 pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary">
+                        <div class="absolute left-3 top-2.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Show Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-{% if message.tags == 'success' %}green-100 text-green-800{% elif message.tags == 'error' %}red-100 text-red-800{% else %}{{ message.tags }}-100 text-{{ message.tags }}-800{% endif %} p-4 rounded-md mb-6 flex items-center shadow-sm">
+                    {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i>
+                    {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle text-red-500 mr-3 text-xl"></i>
+                    {% else %}
+                        <i class="fas fa-info-circle text-blue-500 mr-3 text-xl"></i>
+                    {% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Orders List -->
+        <div class="space-y-6">
+            {% if orders %}
+                {% for order in orders %}
+                    <!-- Order Item -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="md:flex md:justify-between md:items-center">
+                                <div class="col-span-4 sm:col-span-3">
+                                    <div class="flex flex-col">
+                                        <h4 class="font-bold text-lg mb-1">
+                                            {{ order.order_id }}
+                                        </h4>
+                                        <div class="text-sm text-gray-600">{{ order.date }}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    {% if order.status == 'pending' %}
+                                        <button class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md text-sm transition duration-300">
+                                            دفع الآن
+                                        </button>
+                                        {% if not order.has_cancellation_request %}
+                                        <button class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition duration-300 cancel-order-btn" data-order-id="{{ order.order_id }}">
+                                            إلغاء الطلب
+                                        </button>
+                                        {% endif %}
+                                    {% elif order.status == 'processing' or order.status == 'shipped' %}
+                                        <button class="bg-white text-gray-700 border border-gray-300 py-2 px-4 rounded-md text-sm hover:bg-gray-50">
+                                            تتبع الشحنة
+                                        </button>
+                                        {% if not order.has_cancellation_request %}
+                                        <button class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition duration-300 cancel-order-btn" data-order-id="{{ order.order_id }}">
+                                            إلغاء الطلب
+                                        </button>
+                                        {% endif %}
+                                    {% elif order.status == 'delivered' %}
+                                        <button class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md text-sm transition duration-300">
+                                            إعادة الطلب
+                                        </button>
+                                    {% endif %}
+                                    <button class="bg-white text-gray-700 border border-gray-300 py-2 px-4 rounded-md text-sm hover:bg-gray-50 mr-2 order-details-btn" data-order-id="{{ order.order_id }}">
+                                        تفاصيل الطلب
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="md:flex">
+                                <div class="md:w-3/4">
+                                    {% for item in order.items %}
+                                        <div class="flex {% if not forloop.last %}mb-4{% endif %} items-start">
+                                            <div class="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 ml-4">
+                                                {% if item.image %}
+                                                    <img src="{{ item.image }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                                                {% else %}
+                                                    <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+                                                        <i class="fas fa-image text-2xl"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-800 mb-1">{{ item.name }}</h4>
+                                                <p class="text-gray-600 text-sm mb-1">
+                                                    {% if item.size %}المقاس: {{ item.size }} | {% endif %}
+                                                    {% if item.color %}اللون: {{ item.color }}{% endif %}
+                                                </p>
+                                                <p class="text-primary font-bold">{{ item.price }} ₪ × {{ item.quantity }}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    
+                                    {% if order.status == 'delivered' %}
+                                        <div class="mt-4">
+                                            <button class="text-primary hover:text-secondary font-medium text-sm flex items-center rate-product-btn" data-product-id="{{ item.id }}">
+                                                <i class="fas fa-star ml-1"></i>
+                                                تقييم المنتج
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="md:w-1/4 mt-6 md:mt-0 md:border-r md:border-gray-200 md:pr-6">
+                                    <h4 class="font-bold text-gray-700 mb-4">ملخص الطلب</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">إجمالي المنتجات:</span>
+                                            <span class="font-medium">{{ order.subtotal }} ₪</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">الشحن:</span>
+                                            <span class="font-medium">{{ order.shipping }} ₪</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">الخصم:</span>
+                                            <span class="font-medium text-green-600">- {{ order.discount }} ₪</span>
+                                        </div>
+                                        <div class="pt-2 mt-2 border-t border-gray-200 flex justify-between">
+                                            <span class="font-bold">الإجمالي:</span>
+                                            <span class="font-bold text-primary">{{ order.total }} ₪</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                    <div class="text-gray-400 text-6xl mb-4">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">لا توجد طلبات لعرضها</h3>
+                    <p class="text-gray-500 mb-6">لم تقم بإجراء أي طلبات حتى الآن</p>
+                    <a href="{% url 'boutiqe:product_list' %}" class="inline-flex items-center bg-primary hover:bg-secondary text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        <i class="fas fa-shopping-basket ml-2"></i>
+                        تسوق الآن
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if orders|length > 10 %}
+            <!-- Pagination -->
+            <div class="mt-10 flex justify-center">
+                <nav class="inline-flex rounded-md shadow">
+                    <a href="#" class="py-2 px-4 text-sm font-medium bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                        السابق
+                    </a>
+                    <a href="#" class="py-2 px-4 text-sm font-medium bg-primary text-white border border-primary hover:bg-secondary">
+                        1
+                    </a>
+                    <a href="#" class="py-2 px-4 text-sm font-medium bg-white border border-gray-300 hover:bg-gray-50">
+                        2
+                    </a>
+                    <a href="#" class="py-2 px-4 text-sm font-medium bg-white border border-gray-300 hover:bg-gray-50">
+                        3
+                    </a>
+                    <a href="#" class="py-2 px-4 text-sm font-medium bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                        التالي
+                    </a>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Order Details Modal -->
+    <div id="order-details-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-6 border-b">
+                    <h3 id="modal-title" class="text-lg font-bold text-gray-800">تفاصيل الطلب</h3>
+                    <button id="close-details-modal" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="modal-content" class="p-6">
+                    <!-- Modal content will be loaded here -->
+                    <div class="flex justify-center">
+                        <div class="loader">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cancel Order Modal -->
+    <div id="cancel-order-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden">
+                <div class="flex justify-between items-center p-6 border-b">
+                    <h3 id="cancel-modal-title" class="text-lg font-bold text-gray-800">إلغاء الطلب</h3>
+                    <button id="close-cancel-modal" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <form id="cancel-order-form" method="post" action="">
+                        <!-- Cancel order form will be loaded here -->
+                        <div class="flex justify-center my-6">
+                            <div class="loader">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- معلومات سعر الصرف -->
+    {% if selected_currency == 'ILS' %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-2 mb-10">
+        <div class="bg-blue-50 border border-blue-200 rounded-md p-4 text-blue-800 text-sm">
+            <p>ملاحظة: جميع الأسعار معروضة بالشيكل (₪). سعر الصرف الحالي: 1 ريال = {{ shekel_exchange_rate }} شيكل</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Rating Modal -->
+    <div id="rating-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden">
+                <div class="flex justify-between items-center p-6 border-b">
+                    <h3 id="rating-modal-title" class="text-lg font-bold text-gray-800">تقييم المنتج</h3>
+                    <button id="close-rating-modal" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <form id="rating-form" method="post" action="#">
+                        {% csrf_token %}
+                        <input type="hidden" id="rating-product-id" name="product_id">
+                        
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">التقييم</label>
+                            <div class="flex space-x-2 space-x-reverse">
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-value="1">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-value="2">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-value="3">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-value="4">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-value="5">★</button>
+                            </div>
+                            <input type="hidden" id="rating-value" name="rating" value="">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="rating-comment" class="block text-gray-700 text-sm font-bold mb-2">تعليق (اختياري)</label>
+                            <textarea id="rating-comment" name="comment" rows="4" class="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary p-2"></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="close-rating-btn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md text-sm ml-2 hover:bg-gray-300">
+                                إلغاء
+                            </button>
+                            <button type="submit" class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md text-sm transition duration-300">
+                                إرسال التقييم
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize order details modal functionality
+        const orderDetailsButtons = document.querySelectorAll('.order-details-btn');
+        const orderDetailsModal = document.getElementById('order-details-modal');
+        const closeDetailsModalBtn = document.getElementById('close-details-modal');
+        const modalTitle = document.getElementById('modal-title');
+        
+        if (orderDetailsButtons.length > 0 && orderDetailsModal) {
+            orderDetailsButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    modalTitle.textContent = `تفاصيل الطلب #${orderId}`;
+                    orderDetailsModal.classList.remove('hidden');
+                });
+            });
+            
+            closeDetailsModalBtn.addEventListener('click', function() {
+                orderDetailsModal.classList.add('hidden');
+            });
+            
+            // Close modal when clicking outside
+            orderDetailsModal.addEventListener('click', function(e) {
+                if (e.target === this || e.target.classList.contains('absolute')) {
+                    orderDetailsModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Cancel Order Modal Functionality
+        const cancelOrderButtons = document.querySelectorAll('.cancel-order-btn');
+        const cancelOrderModal = document.getElementById('cancel-order-modal');
+        const closeCancelModalBtn = document.getElementById('close-cancel-modal');
+        const cancelModalTitle = document.getElementById('cancel-modal-title');
+        const cancelOrderForm = document.getElementById('cancel-order-form');
+        
+        if (cancelOrderButtons.length > 0 && cancelOrderModal) {
+            cancelOrderButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    cancelModalTitle.textContent = `إلغاء الطلب #${orderId}`;
+                    
+                    // Load the cancel form via AJAX
+                    fetch(`/cancel-order/`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        cancelOrderForm.innerHTML = html;
+                        
+                        // Add hidden input for order_id
+                        const orderIdInput = document.createElement('input');
+                        orderIdInput.type = 'hidden';
+                        orderIdInput.name = 'order_id';
+                        orderIdInput.value = orderId;
+                        cancelOrderForm.prepend(orderIdInput);
+                        
+                        // Set the form action to the new URL
+                        cancelOrderForm.action = '/cancel-order/';
+                        
+                        // Add event listener to the new close button
+                        const closeFormBtn = document.getElementById('close-cancel-form-btn');
+                        if (closeFormBtn) {
+                            closeFormBtn.addEventListener('click', function() {
+                                cancelOrderModal.classList.add('hidden');
+                            });
+                        }
+                        
+                        // Submit the form via AJAX
+                        cancelOrderForm.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            
+                            const formData = new FormData(this);
+                            
+                            fetch('/cancel-order/', {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    // Hide the modal
+                                    cancelOrderModal.classList.add('hidden');
+                                    
+                                    // Show success message
+                                    const successMessage = document.createElement('div');
+                                    successMessage.className = 'bg-green-100 text-green-700 p-4 rounded-md mb-6';
+                                    successMessage.textContent = 'تم إرسال طلب إلغاء الطلب بنجاح. سيتواصل معك فريق خدمة العملاء قريباً.';
+                                    
+                                    // Insert message before the orders list
+                                    const container = document.querySelector('.container');
+                                    container.insertBefore(successMessage, document.querySelector('.space-y-6'));
+                                    
+                                    // Update UI to show cancellation pending state
+                                    const orderItem = document.querySelector(`[data-order-id="${orderId}"]`).closest('.bg-white.rounded-lg');
+                                    const statusContainer = orderItem.querySelector('.flex.items-center.mb-2');
+                                    
+                                    // Add cancellation pending badge
+                                    const pendingBadge = document.createElement('span');
+                                    pendingBadge.className = 'bg-yellow-100 text-yellow-700 text-xs font-medium py-1 px-2 rounded-full mr-2';
+                                    pendingBadge.textContent = 'طلب الإلغاء قيد المراجعة';
+                                    statusContainer.appendChild(pendingBadge);
+                                    
+                                    // Hide the cancel button
+                                    button.style.display = 'none';
+                                    
+                                    // Auto scroll to the message
+                                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                                } else {
+                                    // Show error message in the form
+                                    console.error(data.errors);
+                                    alert('حدث خطأ أثناء معالجة طلبك. يرجى التحقق من البيانات المدخلة.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.');
+                            });
+                        });
+                    });
+                    
+                    cancelOrderModal.classList.remove('hidden');
+                });
+            });
+            
+            closeCancelModalBtn.addEventListener('click', function() {
+                cancelOrderModal.classList.add('hidden');
+            });
+            
+            // Close modal when clicking outside
+            cancelOrderModal.addEventListener('click', function(e) {
+                if (e.target === this || e.target.classList.contains('absolute')) {
+                    cancelOrderModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Rating Modal Functionality
+        const ratingButtons = document.querySelectorAll('.rate-product-btn');
+        const ratingModal = document.getElementById('rating-modal');
+        const closeRatingModalBtn = document.getElementById('close-rating-modal');
+        const closeRatingBtn = document.getElementById('close-rating-btn');
+        const ratingForm = document.getElementById('rating-form');
+        const ratingProductId = document.getElementById('rating-product-id');
+        const starButtons = document.querySelectorAll('.star-btn');
+        const ratingValue = document.getElementById('rating-value');
+        
+        if (ratingButtons.length > 0 && ratingModal) {
+            ratingButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    ratingProductId.value = productId;
+                    ratingModal.classList.remove('hidden');
+                    
+                    // Reset stars
+                    starButtons.forEach(star => {
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-gray-300');
+                    });
+                    
+                    ratingValue.value = '';
+                });
+            });
+            
+            // Star rating functionality
+            starButtons.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    ratingValue.value = value;
+                    
+                    // Update star colors
+                    starButtons.forEach(s => {
+                        const starValue = parseInt(s.getAttribute('data-value'));
+                        if (starValue <= value) {
+                            s.classList.remove('text-gray-300');
+                            s.classList.add('text-yellow-400');
+                        } else {
+                            s.classList.remove('text-yellow-400');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+            
+            // Form submission
+            ratingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!ratingValue.value) {
+                    alert('الرجاء اختيار تقييم');
+                    return;
+                }
+                
+                // Simulate successful submission 
+                alert('تم إرسال تقييمك بنجاح!');
+                ratingModal.classList.add('hidden');
+            });
+            
+            // Close modal buttons
+            closeRatingModalBtn.addEventListener('click', function() {
+                ratingModal.classList.add('hidden');
+            });
+            
+            closeRatingBtn.addEventListener('click', function() {
+                ratingModal.classList.add('hidden');
+            });
+            
+            // Close modal when clicking outside
+            ratingModal.addEventListener('click', function(e) {
+                if (e.target === this || e.target.classList.contains('absolute')) {
+                    ratingModal.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

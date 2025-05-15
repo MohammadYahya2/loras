@@ -1,0 +1,11 @@
+<!-- Category image section needs to be updated -->
+<!-- Locate section with category images and update like this: -->
+
+<!-- Category image display example -->
+{% if category.image %}
+    <img src="{% url 'boutiqe:serve_media' category.image.name %}" alt="{{ category.name }}" class="w-full h-full object-cover">
+{% else %}
+    <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+        <i class="fas fa-folder text-3xl text-gray-400"></i>
+    </div>
+{% endif %} 

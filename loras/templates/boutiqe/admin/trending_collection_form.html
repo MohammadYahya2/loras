@@ -1,0 +1,141 @@
+{% extends 'boutiqe/admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - بوتيك لوراس الإدارة{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{% url 'boutiqe:admin_trending_collections' %}" class="inline-flex items-center text-sm text-primary hover:text-secondary">
+            <i class="fas fa-arrow-right ml-1"></i>
+            العودة إلى المجموعات الرائجة
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">{{ title }}</h1>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-r-4 border-red-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    <div class="mr-3">
+                        <p class="text-sm text-red-700">
+                            {{ form.non_field_errors }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        اسم المجموعة
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.name.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        الاسم اللطيف (Slug)
+                    </label>
+                    {{ form.slug }}
+                    {% if form.slug.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.slug.errors }}</p>
+                    {% endif %}
+                    <p class="text-gray-500 text-xs mt-1">إذا تركته فارغاً، سيتم إنشاؤه تلقائياً</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    وصف المجموعة
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.description.errors }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    صورة المجموعة
+                </label>
+                {% if collection and collection.image %}
+                <div class="mb-3">
+                    <img src="{{ collection.image.url }}" alt="{{ collection.name }}" class="h-32 w-32 object-cover rounded-md">
+                </div>
+                {% endif %}
+                {{ form.image }}
+                {% if form.image.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.image.errors }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="{{ form.order_position.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        ترتيب العرض
+                    </label>
+                    {{ form.order_position }}
+                    {% if form.order_position.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.order_position.errors }}</p>
+                    {% endif %}
+                    <p class="text-gray-500 text-xs mt-1">الأرقام الأصغر ستظهر أولاً</p>
+                </div>
+                
+                <div class="flex items-center pt-5">
+                    {{ form.is_active }}
+                    <label for="{{ form.is_active.id_for_label }}" class="mr-2 block text-sm font-medium text-gray-700">
+                        نشط
+                    </label>
+                    {% if form.is_active.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.is_active.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    المنتجات
+                </label>
+                <div class="border border-gray-300 rounded-md p-4 max-h-64 overflow-y-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for product in form.products.field.queryset %}
+                        <div class="flex items-center">
+                            <input type="checkbox" name="products" value="{{ product.id }}" id="product_{{ product.id }}" 
+                                {% if product in form.products.initial or product.id in form.products.value|default:'' %}checked{% endif %}
+                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="product_{{ product.id }}" class="mr-2 block text-sm font-medium text-gray-700">
+                                {{ product.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if form.products.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.products.errors }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex justify-end">
+                <a href="{% url 'boutiqe:admin_trending_collections' %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ml-3">
+                    إلغاء
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

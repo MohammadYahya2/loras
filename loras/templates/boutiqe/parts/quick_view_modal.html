@@ -1,0 +1,194 @@
+<div class="absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm"></div>
+<div class="relative bg-white max-w-3xl mx-auto rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+    <!-- زر الإغلاق -->
+    <button class="close-quick-view absolute top-3 right-3 text-gray-500 hover:text-gray-700 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center transition duration-300 hover:bg-gray-100 hover:scale-110">
+        <i class="fas fa-times"></i>
+    </button>
+    
+    <div class="md:flex">
+        <!-- صورة المنتج -->
+        <div class="md:w-1/2 p-6 bg-gradient-to-br from-gray-50 to-gray-100">
+            <div class="product-images">
+                <div class="main-image mb-4 overflow-hidden rounded-xl shadow-lg relative group">
+                    {% if product.get_main_image %}
+                        <img src="{{ product.get_main_image.image.url }}" alt="{{ product.name }}" class="w-full h-auto object-cover transform hover:scale-105 transition duration-700 ease-in-out">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {% else %}
+                        <div class="w-full h-60 bg-gray-200 flex items-center justify-center rounded-lg">
+                            <p class="text-gray-400">لا توجد صورة</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if product.images.count > 1 %}
+                <div class="thumbnail-images flex space-x-3 space-x-reverse rtl:space-x-reverse justify-center">
+                    {% for image in product.images.all|slice:":4" %}
+                        <div class="w-14 h-14 border-2 border-gray-200 hover:border-primary rounded-lg overflow-hidden cursor-pointer quick-view-thumbnail transition duration-300 hover:shadow-md" data-image="{% url 'boutiqe:serve_media' image.image.name %}">
+                            <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Badges -->
+            <div class="flex flex-wrap gap-2 mt-4 justify-center">
+                {% if product.is_new %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-secondary text-white shadow-md">
+                    <i class="fas fa-certificate mr-1"></i> جديد
+                </span>
+                {% endif %}
+                
+                {% if product.discount_price %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-primary to-secondary text-white shadow-md">
+                    <i class="fas fa-tag mr-1"></i> خصم {{ product.get_discount_percent }}%
+                </span>
+                {% endif %}
+                
+                {% if product.in_stock %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white shadow-md">
+                    <i class="fas fa-check-circle mr-1"></i> متوفر
+                </span>
+                {% else %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-500 text-white shadow-md">
+                    <i class="fas fa-times-circle mr-1"></i> غير متوفر
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- معلومات المنتج -->
+        <div class="md:w-1/2 p-6 flex flex-col h-full bg-white">
+            <div class="flex-1">
+                <div class="mb-1">
+                    {% if product.category %}
+                    <span class="text-primary text-xs font-medium hover:text-secondary transition duration-300 uppercase tracking-wider">{{ product.category.name }}</span>
+                    {% endif %}
+                </div>
+                
+                <h2 class="text-2xl font-bold text-gray-800 mb-3 font-serif">{{ product.name }}</h2>
+                
+                <!-- التقييم -->
+                <div class="flex items-center mb-4">
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star text-sm ml-0.5"></i>
+                        <i class="fas fa-star text-sm ml-0.5"></i>
+                        <i class="fas fa-star text-sm ml-0.5"></i>
+                        <i class="fas fa-star-half-alt text-sm ml-0.5"></i>
+                        <i class="far fa-star text-sm"></i>
+                    </div>
+                    <span class="text-gray-500 text-xs mr-2 font-medium">(18 تقييم)</span>
+                </div>
+                
+                <!-- السعر -->
+                <div class="mb-4 bg-gray-50 p-3 rounded-lg border-r-4 border-primary shadow-sm">
+                    {% if product.discount_price %}
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold text-primary font-serif">₪{{ product.discount_price }}</span>
+                        <span class="text-gray-500 line-through mr-3 text-sm">₪{{ product.price }}</span>
+                    </div>
+                    <div class="mt-1 text-xs text-green-600 font-medium">
+                        <i class="fas fa-arrow-down mr-1"></i> توفير ₪{{ product.get_discount_amount }}
+                    </div>
+                    {% else %}
+                    <span class="text-2xl font-bold text-primary font-serif">₪{{ product.price }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- الوصف -->
+                <div class="mb-4">
+                    <h3 class="text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">وصف المنتج</h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">{{ product.description|truncatewords:25 }}</p>
+                </div>
+                
+                <!-- الألوان -->
+                {% if product.colors.exists %}
+                <div class="mb-4">
+                    <h3 class="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">الألوان المتاحة</h3>
+                    <div class="flex space-x-3 space-x-reverse rtl:space-x-reverse">
+                        {% for color in product.colors.all %}
+                        <div class="w-8 h-8 rounded-full cursor-pointer quick-view-color border-2 border-transparent hover:border-gray-500 transition duration-300 shadow-md transform hover:scale-110" style="background-color: {{ color.code }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- المقاسات -->
+                {% if product.sizes.exists %}
+                <div class="mb-4">
+                    <h3 class="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">المقاسات المتاحة</h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for size in product.sizes.all %}
+                        <div class="px-3 py-1.5 border border-gray-300 rounded-lg text-xs hover:bg-primary hover:text-white hover:border-primary cursor-pointer transition duration-300 quick-view-size font-medium">{{ size.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- الكمية -->
+                <div class="mb-4">
+                    <h3 class="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">الكمية</h3>
+                    <div class="flex items-center">
+                        <button class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-200 transition shadow-sm" id="quick-view-decrease">
+                            <i class="fas fa-minus text-gray-600 text-xs"></i>
+                        </button>
+                        <input type="number" min="1" value="1" class="w-14 text-center mx-2 py-1.5 border border-gray-300 rounded-lg font-medium text-sm" id="quick-view-quantity">
+                        <button class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-200 transition shadow-sm" id="quick-view-increase">
+                            <i class="fas fa-plus text-gray-600 text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- أزرار الإجراءات -->
+            <div class="flex space-x-3 space-x-reverse rtl:space-x-reverse mt-4">
+                <button type="button" id="quick-view-add-to-cart" data-product="{{ product.id }}" class="flex-1 bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white font-bold py-3 px-4 rounded-xl transition duration-300 flex items-center justify-center shadow-lg hover:shadow-xl">
+                    <i class="fas fa-shopping-cart ml-2 text-sm"></i>إضافة للسلة
+                </button>
+                
+                <button type="button" data-product="{{ product.id }}" class="quick-view-wishlist-btn w-12 h-12 bg-white border border-gray-300 rounded-xl flex items-center justify-center hover:bg-gray-50 transition duration-300 shadow-md hover:shadow-lg">
+                    <i class="{% if is_in_wishlist %}fas text-red-500{% else %}far{% endif %} fa-heart text-lg"></i>
+                </button>
+                
+                <a href="{% url 'boutiqe:product_detail' product.slug %}" class="w-12 h-12 bg-white border border-gray-300 rounded-xl flex items-center justify-center hover:bg-gray-50 transition duration-300 shadow-md hover:shadow-lg">
+                    <i class="fas fa-external-link-alt text-sm"></i>
+                </a>
+            </div>
+            
+            <!-- معلومات إضافية -->
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <div class="grid grid-cols-2 gap-3 text-xs text-gray-600">
+                    {% if product.sku %}
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shadow-sm mr-2">
+                            <i class="fas fa-barcode text-gray-500 text-xs"></i>
+                        </div>
+                        <span>رمز المنتج: <span class="font-medium">{{ product.sku }}</span></span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shadow-sm mr-2">
+                            <i class="fas fa-box text-gray-500 text-xs"></i>
+                        </div>
+                        <span>المخزون: <span class="font-medium">{{ product.stock_quantity }} قطعة</span></span>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shadow-sm mr-2">
+                            <i class="fas fa-shipping-fast text-gray-500 text-xs"></i>
+                        </div>
+                        <span>شحن مجاني للطلبات فوق <span class="font-medium">₪500</span></span>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shadow-sm mr-2">
+                            <i class="fas fa-undo text-gray-500 text-xs"></i>
+                        </div>
+                        <span>إرجاع مجاني خلال <span class="font-medium">14 يوم</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

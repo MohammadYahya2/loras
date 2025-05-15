@@ -1,0 +1,273 @@
+{% extends 'boutiqe/admin/base.html' %}
+{% load static %}
+
+{% block title %}لوحة تحكم الأدمن - بوتيك لوراس{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">لوحة تحكم الأدمن</h1>
+    
+    <!-- إحصائيات سريعة -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-primary bg-opacity-10 text-primary ml-4">
+                    <i class="fas fa-box-open text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">المنتجات</p>
+                    <h3 class="text-3xl font-bold text-gray-800">{{ products_count }}</h3>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'boutiqe:admin_products' %}" class="text-primary hover:text-secondary text-sm font-medium">
+                    إدارة المنتجات
+                    <i class="fas fa-arrow-left mr-1"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-500 ml-4">
+                    <i class="fas fa-list text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">الفئات</p>
+                    <h3 class="text-3xl font-bold text-gray-800">{{ categories_count }}</h3>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'boutiqe:admin_categories' %}" class="text-blue-500 hover:text-blue-600 text-sm font-medium">
+                    إدارة الفئات
+                    <i class="fas fa-arrow-left mr-1"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-500 ml-4">
+                    <i class="fas fa-shopping-cart text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">الطلبات</p>
+                    <h3 class="text-3xl font-bold text-gray-800">{{ orders_count }}</h3>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="#" class="text-green-500 hover:text-green-600 text-sm font-medium">
+                    إدارة الطلبات
+                    <i class="fas fa-arrow-left mr-1"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-500 ml-4">
+                    <i class="fas fa-users text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">المستخدمين</p>
+                    <h3 class="text-3xl font-bold text-gray-800">{{ users_count }}</h3>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'boutiqe:admin_users' %}" class="text-purple-500 hover:text-purple-600 text-sm font-medium">
+                    إدارة المستخدمين
+                    <i class="fas fa-arrow-left mr-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- آخر المنتجات المضافة -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="flex justify-between items-center px-6 py-4 border-b">
+                    <h2 class="text-lg font-bold text-gray-800">آخر المنتجات المضافة</h2>
+                    <a href="{% url 'boutiqe:admin_products' %}" class="text-primary hover:text-secondary text-sm font-medium">
+                        عرض الكل
+                    </a>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    المنتج
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    السعر
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الحالة
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    التاريخ
+                                </th>
+                                <th scope="col" class="relative px-6 py-3">
+                                    <span class="sr-only">إجراءات</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for product in recent_products %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-md overflow-hidden">
+                                            {% if product.get_main_image %}
+                                                <img src="{{ product.get_main_image.image.url }}" alt="{{ product.name }}" class="h-10 w-10 object-cover">
+                                            {% else %}
+                                                <div class="h-10 w-10 bg-gray-200 flex items-center justify-center">
+                                                    <i class="fas fa-image text-gray-400"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mr-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ product.name }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ product.category.name }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        {% if product.discount_price %}
+                                            {{ product.discount_price }} ﷼
+                                            <span class="text-xs text-gray-500 line-through">{{ product.price }} ﷼</span>
+                                        {% else %}
+                                            {{ product.price }} ﷼
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if product.in_stock %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        متوفر
+                                    </span>
+                                    {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        غير متوفر
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ product.created_at|date:"d/m/Y" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                                    <a href="{% url 'boutiqe:admin_product_edit' product_id=product.id %}" class="text-primary hover:text-secondary ml-3">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'boutiqe:admin_product_delete' product_id=product.id %}" class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                    لا توجد منتجات مضافة بعد
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- إجراءات سريعة -->
+        <div>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="px-6 py-4 border-b">
+                    <h2 class="text-lg font-bold text-gray-800">إجراءات سريعة</h2>
+                </div>
+                
+                <div class="p-6 space-y-4">
+                    <a href="{% url 'boutiqe:admin_product_create' %}" class="flex items-center p-4 bg-primary bg-opacity-10 text-primary rounded-md hover:bg-opacity-20 transition">
+                        <i class="fas fa-plus-circle ml-3 text-xl"></i>
+                        <span>إضافة منتج جديد</span>
+                    </a>
+                    
+                    <a href="{% url 'boutiqe:admin_discount_create' %}" class="flex items-center p-4 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition">
+                        <i class="fas fa-tag ml-3 text-xl"></i>
+                        <span>إضافة خصم جديد</span>
+                    </a>
+                    
+                    <a href="{% url 'boutiqe:admin_trending_collection_create' %}" class="flex items-center p-4 bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition">
+                        <i class="fas fa-fire ml-3 text-xl"></i>
+                        <span>إضافة مجموعة رائجة</span>
+                    </a>
+                    
+                    <a href="{% url 'boutiqe:admin_categories' %}" class="flex items-center p-4 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition">
+                        <i class="fas fa-folder-plus ml-3 text-xl"></i>
+                        <span>إضافة فئة جديدة</span>
+                    </a>
+                    
+                    <a href="#" class="flex items-center p-4 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition">
+                        <i class="fas fa-user-plus ml-3 text-xl"></i>
+                        <span>إضافة مستخدم جديد</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- نظرة عامة -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b">
+                    <h2 class="text-lg font-bold text-gray-800">نظرة عامة</h2>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">المنتجات المميزة</h3>
+                        <div class="flex justify-between items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-primary h-2.5 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 mr-4">45%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">المنتجات الجديدة</h3>
+                        <div class="flex justify-between items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 65%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 mr-4">65%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">العروض الخاصة</h3>
+                        <div class="flex justify-between items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-red-500 h-2.5 rounded-full" style="width: 30%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 mr-4">30%</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">المنتجات غير المتوفرة</h3>
+                        <div class="flex justify-between items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-gray-500 h-2.5 rounded-full" style="width: 15%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 mr-4">15%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

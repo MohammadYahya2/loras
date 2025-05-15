@@ -1,0 +1,355 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}تواصل معنا - بوتيك لوراس{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-8" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex bg-gray-50 px-4 py-2 rounded-lg shadow-sm">
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-primary font-medium">تواصل معنا</span>
+                </li>
+            </ol>
+        </nav>
+        
+        <!-- Page Title -->
+        <div class="mb-12 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">تواصل معنا</h1>
+            <div class="w-24 h-1 bg-primary mx-auto mb-4 rounded-full"></div>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">نحن هنا لمساعدتك والإجابة على استفساراتك، يسعدنا التواصل معك في أي وقت</p>
+        </div>
+        
+        <!-- Main Contact Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <!-- Contact Information Cards -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Store Information -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transform transition duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary bg-opacity-10 mb-6">
+                            <i class="fas fa-store text-primary text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">معلومات المتجر</h2>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 rounded-full p-3 text-primary text-lg ml-4 flex-shrink-0">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-lg mb-1">العنوان</h3>
+                                    <p class="text-gray-600">شارع الأمير محمد بن عبدالعزيز (التحلية)، حي العليا، الرياض، المملكة العربية السعودية</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 rounded-full p-3 text-primary text-lg ml-4 flex-shrink-0">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-lg mb-1">الهاتف</h3>
+                                    <p class="text-gray-600">+966 50 123 4567</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 rounded-full p-3 text-primary text-lg ml-4 flex-shrink-0">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-lg mb-1">البريد الإلكتروني</h3>
+                                    <p class="text-gray-600">info@loras.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 rounded-full p-3 text-primary text-lg ml-4 flex-shrink-0">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-lg mb-1">ساعات العمل</h3>
+                                    <p class="text-gray-600">من السبت إلى الخميس: 9:00 صباحاً - 11:00 مساءً</p>
+                                    <p class="text-gray-600">الجمعة: 2:00 مساءً - 11:00 مساءً</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Social Media -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transform transition duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary bg-opacity-10 mb-6">
+                            <i class="fas fa-hashtag text-primary text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">تابعنا على وسائل التواصل الاجتماعي</h2>
+                        
+                        <div class="flex space-x-4 space-x-reverse justify-center">
+                            <a href="#" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white h-14 w-14 rounded-full flex items-center justify-center hover:from-blue-700 hover:to-blue-800 transition transform hover:scale-110 shadow-md">
+                                <i class="fab fa-facebook-f text-xl"></i>
+                            </a>
+                            <a href="#" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white h-14 w-14 rounded-full flex items-center justify-center hover:from-pink-600 hover:to-purple-700 transition transform hover:scale-110 shadow-md">
+                                <i class="fab fa-instagram text-xl"></i>
+                            </a>
+                            <a href="#" class="bg-gradient-to-r from-blue-400 to-blue-500 text-white h-14 w-14 rounded-full flex items-center justify-center hover:from-blue-500 hover:to-blue-600 transition transform hover:scale-110 shadow-md">
+                                <i class="fab fa-twitter text-xl"></i>
+                            </a>
+                            <a href="#" class="bg-gradient-to-r from-gray-900 to-black text-white h-14 w-14 rounded-full flex items-center justify-center hover:from-black hover:to-gray-900 transition transform hover:scale-110 shadow-md">
+                                <i class="fab fa-tiktok text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transform transition duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary bg-opacity-10 mb-6">
+                            <i class="fas fa-map-marked-alt text-primary text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">موقعنا</h2>
+                        
+                        <div class="bg-gray-200 h-80 w-full rounded-xl overflow-hidden shadow-inner">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.305379039521!2d46.68682947519096!3d24.69872337825159!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f037123956b6f%3A0x74770b6b5583cf02!2z2LTYp9ix2Lkg2KfZhNij2YXZitixINmF2K3ZhdivINio2YYg2LnYqNiv2KfZhNi52LLZitiy2Iwg2KfZhNi52YTZitinINin2YTYsdmK2KfYtiA0NzAwLNin2YTYsdmK2KfYtg!5e0!3m2!1sar!2ssa!4v1699600192023!5m2!1sar!2ssa" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Form -->
+            <div class="lg:col-span-7">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transform transition duration-300 hover:shadow-xl p-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary bg-opacity-10 mb-6">
+                        <i class="fas fa-envelope-open-text text-primary text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800">أرسل لنا رسالة</h2>
+                    <p class="text-gray-600 mb-8">نحن نقدر تواصلك معنا ونسعى لتقديم أفضل خدمة ممكنة. يرجى ملء النموذج أدناه وسنرد عليك في أقرب وقت ممكن.</p>
+                    
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-gray-700 font-medium mb-2">الاسم</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <input type="text" id="name" name="name" required class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="اسمك الكامل">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-gray-700 font-medium mb-2">البريد الإلكتروني</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <input type="email" id="email" name="email" required class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="بريدك الإلكتروني">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-medium mb-2">رقم الهاتف</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <input type="tel" id="phone" name="phone" required class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="رقم الهاتف">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="subject" class="block text-gray-700 font-medium mb-2">الموضوع</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                                    <i class="fas fa-tag"></i>
+                                </div>
+                                <select id="subject" name="subject" required class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition appearance-none bg-white">
+                                    <option value="" selected disabled>اختر الموضوع</option>
+                                    <option value="inquiry">استفسار عام</option>
+                                    <option value="order">استفسار عن طلب</option>
+                                    <option value="return">طلب استرجاع</option>
+                                    <option value="complaint">شكوى</option>
+                                    <option value="other">أخرى</option>
+                                </select>
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-gray-700 font-medium mb-2">الرسالة</label>
+                            <div class="relative">
+                                <div class="absolute top-3 right-0 flex items-start pr-3 pointer-events-none text-gray-500">
+                                    <i class="fas fa-comment-alt"></i>
+                                </div>
+                                <textarea id="message" name="message" rows="6" required class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="أخبرنا كيف يمكننا مساعدتك"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center bg-gray-50 p-4 rounded-lg">
+                            <input type="checkbox" id="privacy" name="privacy" required class="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded ml-3">
+                            <label for="privacy" class="text-gray-600">أوافق على <a href="#" class="text-primary hover:underline">سياسة الخصوصية</a> و<a href="#" class="text-primary hover:underline">شروط الاستخدام</a></label>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white font-bold py-4 px-8 rounded-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex justify-center items-center">
+                            <i class="fas fa-paper-plane ml-2"></i>
+                            إرسال الرسالة
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="mt-12 mb-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">الأسئلة الشائعة</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mb-4 rounded-full"></div>
+                <p class="text-gray-600 max-w-2xl mx-auto">إجابات على الأسئلة المتكررة التي قد تدور في ذهنك</p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transform transition duration-300 hover:shadow-xl">
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-6">
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <button class="faq-toggle flex justify-between items-center w-full text-left font-bold text-gray-800 p-5 bg-gray-50 hover:bg-gray-100 transition focus:outline-none">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-credit-card text-primary ml-3"></i>
+                                        ما هي طرق الدفع المتاحة؟
+                                    </span>
+                                    <i class="fas fa-chevron-down text-primary transition-transform duration-300"></i>
+                                </button>
+                                <div class="faq-content hidden p-5 border-t border-gray-200">
+                                    <p class="text-gray-600">نحن نقبل مدفوعات عبر بطاقات الائتمان (فيزا، ماستركارد)، وأبل باي، وباي بال، والدفع عند الاستلام في بعض المناطق المختارة.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <button class="faq-toggle flex justify-between items-center w-full text-left font-bold text-gray-800 p-5 bg-gray-50 hover:bg-gray-100 transition focus:outline-none">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-exchange-alt text-primary ml-3"></i>
+                                        ما هي سياسة الإرجاع والاستبدال؟
+                                    </span>
+                                    <i class="fas fa-chevron-down text-primary transition-transform duration-300"></i>
+                                </button>
+                                <div class="faq-content hidden p-5 border-t border-gray-200">
+                                    <p class="text-gray-600">يمكنك إرجاع أو استبدال المنتجات في غضون 14 يومًا من تاريخ الاستلام، شريطة أن تكون المنتجات في حالتها الأصلية مع جميع العلامات والتغليف. بعض العناصر مثل الملابس الداخلية والإكسسوارات غير قابلة للإرجاع لأسباب صحية.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <button class="faq-toggle flex justify-between items-center w-full text-left font-bold text-gray-800 p-5 bg-gray-50 hover:bg-gray-100 transition focus:outline-none">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-truck text-primary ml-3"></i>
+                                        كم تستغرق عملية التوصيل؟
+                                    </span>
+                                    <i class="fas fa-chevron-down text-primary transition-transform duration-300"></i>
+                                </button>
+                                <div class="faq-content hidden p-5 border-t border-gray-200">
+                                    <p class="text-gray-600">التوصيل داخل المدن الرئيسية يستغرق من 3-5 أيام عمل. أما المناطق النائية فقد تستغرق من 5-7 أيام عمل. يمكنك تتبع طلبك من خلال رابط التتبع الذي سيتم إرساله إلى بريدك الإلكتروني وهاتفك.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <button class="faq-toggle flex justify-between items-center w-full text-left font-bold text-gray-800 p-5 bg-gray-50 hover:bg-gray-100 transition focus:outline-none">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-map-marker-alt text-primary ml-3"></i>
+                                        هل يمكنني تتبع طلبي؟
+                                    </span>
+                                    <i class="fas fa-chevron-down text-primary transition-transform duration-300"></i>
+                                </button>
+                                <div class="faq-content hidden p-5 border-t border-gray-200">
+                                    <p class="text-gray-600">نعم، بمجرد شحن طلبك، ستتلقى رابط تتبع عبر البريد الإلكتروني والرسائل النصية يمكنك من خلاله معرفة حالة طلبك وموقعه الحالي.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <button class="faq-toggle flex justify-between items-center w-full text-left font-bold text-gray-800 p-5 bg-gray-50 hover:bg-gray-100 transition focus:outline-none">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-ban text-primary ml-3"></i>
+                                        هل يمكنني إلغاء أو تعديل طلبي بعد إتمامه؟
+                                    </span>
+                                    <i class="fas fa-chevron-down text-primary transition-transform duration-300"></i>
+                                </button>
+                                <div class="faq-content hidden p-5 border-t border-gray-200">
+                                    <p class="text-gray-600">يمكنك إلغاء أو تعديل طلبك قبل شحنه. بمجرد شحن الطلب، لا يمكن إلغاؤه ولكن يمكنك إرجاعه بعد الاستلام وفقًا لسياسة الإرجاع. للإلغاء أو التعديل، يرجى الاتصال بخدمة العملاء في أقرب وقت ممكن.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <button class="faq-toggle flex justify-between items-center w-full text-left font-bold text-gray-800 p-5 bg-gray-50 hover:bg-gray-100 transition focus:outline-none">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-shipping-fast text-primary ml-3"></i>
+                                        هل توفرون خدمة الشحن السريع؟
+                                    </span>
+                                    <i class="fas fa-chevron-down text-primary transition-transform duration-300"></i>
+                                </button>
+                                <div class="faq-content hidden p-5 border-t border-gray-200">
+                                    <p class="text-gray-600">نعم، نوفر خدمة الشحن السريع مقابل رسوم إضافية. يمكنك اختيار هذه الخدمة أثناء إتمام عملية الشراء، وسيتم توصيل طلبك خلال 24-48 ساعة في المدن الرئيسية.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <p class="text-gray-600">لم تجد ما تبحث عنه؟ <a href="#" class="text-primary font-bold hover:underline">راجع صفحة الأسئلة الشائعة الكاملة</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Call to Action Section -->
+        <div class="bg-gradient-to-r from-primary to-secondary rounded-xl p-8 shadow-xl text-white text-center">
+            <h2 class="text-2xl font-bold mb-4">اشترك في نشرتنا البريدية</h2>
+            <p class="mb-6 max-w-2xl mx-auto">احصل على آخر الأخبار والعروض الخاصة والكوبونات الحصرية مباشرة إلى بريدك الإلكتروني</p>
+            
+            <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                <input type="email" placeholder="أدخل بريدك الإلكتروني" class="flex-grow px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white text-gray-700">
+                <button type="submit" class="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                    اشترك الآن
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // FAQ Toggle
+        const faqToggles = document.querySelectorAll('.faq-toggle');
+        
+        faqToggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('i.fa-chevron-down');
+                
+                // Toggle content
+                content.classList.toggle('hidden');
+                
+                // Rotate icon
+                if (content.classList.contains('hidden')) {
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    icon.style.transform = 'rotate(-180deg)';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

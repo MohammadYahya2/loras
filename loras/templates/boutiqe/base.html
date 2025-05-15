@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}بوتيك لوراس{% endblock %}</title>
+    
+    <!-- Favicon -->
+    {% load static %}
+    <link rel="icon" href="{% static 'images/logoBoutique.png' %}" type="image/png">
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF7BAC',
+                        secondary: '#F9A8D4',
+                        accent: '#FDF2F8',
+                        dark: '#1F1F1F',
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- تجاوز مباشر لدالة showToast لجعلها أصغر حجمًا -->
+    <script>
+        // تعريف دالة showToast الجديدة لتجاوز الدالة الموجودة
+        window.showToast = function(message, type = 'success') {
+            // إزالة جميع الإشعارات الموجودة أولاً (القديمة والجديدة)
+            const allToasts = document.querySelectorAll('.toast, .toast-notification, .notification-popup, .notification-toast');
+            allToasts.forEach(toast => {
+                // حذف الإشعار مباشرة
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            });
+            
+            // اختصار الرسالة إذا كانت طويلة
+            let shortMessage = message;
+            if (message.includes('تمت إضافة المنتج إلى المفضلة')) {
+                shortMessage = 'تمت الإضافة للمفضلة';
+            } else if (message.includes('إزالة المنتج من المفضلة')) {
+                shortMessage = 'تمت الإزالة من المفضلة';
+            } else if (message.includes('حدث خطأ أثناء')) {
+                shortMessage = 'حدث خطأ';
+            }
+            
+            // إنشاء إشعار جديد
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            
+            // الأيقونات حسب نوع الإشعار
+            const icons = {
+                'success': 'fa-check',
+                'error': 'fa-times',
+                'warning': 'fa-exclamation',
+                'info': 'fa-info'
+            };
+            
+            // إضافة محتوى الإشعار
+            toast.innerHTML = `
+                <div class="icon">
+                    <i class="fas ${icons[type] || icons.info}"></i>
+                </div>
+                <div class="message">${shortMessage}</div>
+                <button class="close">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // إضافة الإشعار للصفحة
+            document.body.appendChild(toast);
+            
+            // إظهار الإشعار
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // إضافة حدث النقر لزر الإغلاق
+            toast.querySelector('.close').addEventListener('click', function() {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            });
+            
+            // إخفاء الإشعار تلقائيًا بعد 3 ثوانٍ
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (document.body.contains(toast)) {
+                            toast.remove();
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        };
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Custom Toast Notification Styles -->
+    <link rel="stylesheet" href="{% static 'css/custom/toast.css' %}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    
+    <!-- Block for additional CSS -->
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        :root {
+            --tw-color-primary: #FF7BAC;
+            --tw-color-secondary: #F9A8D4;
+            --tw-color-accent: #FFB6C1;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            padding-bottom: 4rem; /* Space for mobile nav */
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        
+        .slide-in {
+            animation: slideIn 1s ease-in-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Logo Animation */
+        .logo-animation {
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+            transition: all 0.4s ease;
+        }
+        
+        .logo-animation:hover {
+            filter: drop-shadow(0 8px 16px rgba(255, 123, 172, 0.6));
+            transform: translateY(-3px) scale(1.02);
+        }
+        
+        /* Cart Sidebar Styles */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            visibility: hidden;
+        }
+        
+        .cart-sidebar.open {
+            visibility: visible;
+        }
+        
+        .cart-sidebar-overlay {
+            position: fixed;
+            z-index: 9000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .cart-sidebar.open .cart-sidebar-overlay {
+            opacity: 1;
+        }
+        
+        .cart-sidebar-content {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            background-color: white;
+            transition: left 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 9100;
+        }
+        
+        .cart-sidebar.open .cart-sidebar-content {
+            left: 0;
+        }
+        
+        .cart-item {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .cart-item button {
+            position: relative;
+            z-index: 9200;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 640px) {
+            .cart-sidebar-content {
+                max-width: 100%;
+            }
+        }
+        
+        /* Mobile Bottom Navigation */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 4.5rem;
+            z-index: 50;
+            border-top: 1px solid #f0f0f0;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            text-align: center;
+            color: #555;
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item i {
+            font-size: 1.35rem;
+            margin-bottom: 0.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav-item:before {
+            content: '';
+            position: absolute;
+            top: 0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            background-color: transparent;
+            z-index: 0;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            color: var(--tw-color-primary, #FF7BAC);
+        }
+        
+        .nav-item.active:before {
+            background-color: rgba(255, 123, 172, 0.1);
+            opacity: 1;
+        }
+        
+        /* Search Results Dropdown */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 0.5rem 0.5rem;
+            z-index: 30;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .search-results.active {
+            display: block;
+            animation: fadeDown 0.3s ease;
+        }
+        
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .search-result-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .search-result-item:hover {
+            background-color: #FDF2F8;
+        }
+        
+        .search-input:focus {
+            box-shadow: 0 0 0 2px rgba(255, 123, 172, 0.3);
+        }
+        
+        .search-loading {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 123, 172, 0.5) rgba(241, 241, 241, 0.5);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.5);
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 123, 172, 0.5);
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 123, 172, 0.7);
+        }
+        
+        /* Navigation Styles */
+        .nav-link {
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .nav-link .nav-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            height: 3px;
+            width: 60%;
+            background: linear-gradient(to right, var(--tw-color-primary, #FF7BAC), var(--tw-color-secondary, #F9A8D4));
+            border-radius: 99px;
+            transition: transform 0.3s ease;
+            transform-origin: center;
+        }
+        
+        .nav-link:hover .nav-indicator,
+        .active-nav .nav-indicator {
+            transform: translateX(-50%) scaleX(1);
+        }
+        
+        .active-nav {
+            color: var(--tw-color-primary, #FF7BAC);
+            font-weight: 600;
+        }
+        
+        .active-nav i {
+            opacity: 1 !important;
+        }
+        
+        /* Action Icons Styles */
+        .action-icon-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .action-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 123, 172, 0.08);
+            color: #444;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .action-icon:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, var(--tw-color-primary, #FF7BAC), var(--tw-color-secondary, #F9A8D4));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .action-icon-wrapper:hover .action-icon,
+        .active-icon .action-icon {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 123, 172, 0.3);
+        }
+        
+        .action-icon-wrapper:hover .action-icon:before,
+        .active-icon .action-icon:before {
+            opacity: 1;
+        }
+        
+        .action-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--tw-color-primary, #FF7BAC);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 600;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 2px solid white;
+        }
+        
+        /* Account Dropdown */
+        .account-dropdown {
+            position: absolute;
+            left: 0;
+            top: calc(100% + 8px);
+            width: 220px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .group:hover .account-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .account-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: #444;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            text-align: right;
+        }
+        
+        .account-link:hover {
+            background-color: rgba(255, 123, 172, 0.05);
+            color: var(--tw-color-primary, #FF7BAC);
+        }
+        
+        .active-account-link {
+            background-color: rgba(255, 123, 172, 0.05);
+            color: var(--tw-color-primary, #FF7BAC);
+            font-weight: 600;
+        }
+        
+        /* Hide mobile nav on larger screens */
+        @media (min-width: 768px) {
+            .mobile-bottom-nav {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+        }
+        
+        /* Animations for wishlist heart icon */
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+        
+        .animate-heartBeat {
+            animation: heartBeat 1s ease-in-out;
+        }
+        
+        /* Wishlist bounce animation */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .animate-bounce {
+            animation: bounce 0.5s ease-in-out;
+        }
+        
+        /* Toast Notifications */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            z-index: 1000;
+            min-width: 200px;
+            max-width: 250px;
+            padding: 8px 14px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            direction: rtl;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast-notification .icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .toast-notification.success .icon {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        
+        .toast-notification.error .icon {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .toast-notification.warning .icon {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+        
+        .toast-notification.info .icon {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        .toast-notification .message {
+            flex-grow: 1;
+        }
+        
+        .toast-notification .close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 2px;
+        }
+        
+        .toast-notification .close:hover {
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900" {% block extra_attributes %}{% endblock %}>
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20 sm:h-20 md:h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="{% url 'boutiqe:home' %}" class="flex items-center">
+                        <img src="{% static 'images/logoBoutique.png' %}" alt="بوتيك لوراس" class="h-14 sm:h-20 md:h-24 my-2 md:my-3 logo-animation">
+                    </a>
+                </div>
+                
+                <!-- Desktop Search Bar -->
+                <div class="hidden md:block flex-1 max-w-lg mx-10 md:mt-4">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="desktop-search-input" 
+                            class="search-input w-full px-5 py-3 pr-12 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200" 
+                            placeholder="ابحث عن منتجات..."
+                            autocomplete="off"
+                        >
+                        <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fas fa-search text-primary/70"></i>
+                        </span>
+                        <span class="search-loading absolute left-4 top-1/2 transform -translate-y-1/2">
+                            <svg class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
+                        <div id="desktop-search-results" class="search-results rounded-lg mt-1"></div>
+                    </div>
+                </div>
+                
+                <!-- Search Icon - Mobile Only -->
+                <div class="md:hidden flex items-center">
+                    <button type="button" id="mobile-search-toggle" class="action-icon-wrapper">
+                        <div class="action-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Navigation - Desktop Only -->
+                <nav class="hidden md:flex space-x-8 space-x-reverse md:mt-4">
+                    <a href="{% url 'boutiqe:home' %}" class="nav-link text-gray-700 hover:text-primary px-4 py-3 rounded-md text-base font-medium transition-all duration-300 flex items-center relative overflow-hidden group {% if request.resolver_match.url_name == 'home' %}active-nav{% endif %}">
+                        <i class="fas fa-home ml-2 text-primary opacity-70 transform group-hover:scale-110 transition-transform duration-300"></i>
+                        <span>الرئيسية</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                    
+                    <!-- قائمة الفئات مع قائمة منسدلة -->
+                    <div class="relative group">
+                        <button class="nav-link text-gray-700 group-hover:text-primary px-4 py-3 rounded-md text-base font-medium transition-all duration-300 flex items-center relative overflow-hidden">
+                            <i class="fas fa-th-large ml-2 text-primary opacity-70 transform group-hover:scale-110 transition-transform duration-300"></i>
+                            <span>الفئات</span>
+                            <i class="fas fa-chevron-down mr-1 text-xs transition-transform duration-300 group-hover:rotate-180 mt-0.5"></i>
+                            <span class="nav-indicator"></span>
+                        </button>
+                        <div class="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-xl overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 border border-gray-100">
+                            <div class="py-2 max-h-96 overflow-y-auto custom-scrollbar">
+                                {% for category in categories|default:'' %}
+                                <a href="{% url 'boutiqe:product_list_by_category' category.slug %}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary w-full text-right transition duration-200 flex items-center">
+                                    {% if category.image %}
+                                    <span class="w-6 h-6 rounded-full overflow-hidden bg-gray-100 ml-2 flex-shrink-0">
+                                        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover">
+                                    </span>
+                                    {% else %}
+                                    <span class="w-6 h-6 rounded-full overflow-hidden bg-gray-100 ml-2 flex-shrink-0 flex items-center justify-center text-gray-400 text-xs">
+                                        <i class="fas fa-folder"></i>
+                                    </span>
+                                    {% endif %}
+                                    {{ category.name }}
+                                </a>
+                                {% empty %}
+                                <span class="block px-4 py-3 text-sm text-gray-500 w-full text-right">لا توجد فئات متاحة</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'boutiqe:product_list' %}" class="nav-link text-gray-700 hover:text-primary px-4 py-3 rounded-md text-base font-medium transition-all duration-300 flex items-center relative overflow-hidden group {% if request.resolver_match.url_name == 'product_list' %}active-nav{% endif %}">
+                        <i class="fas fa-shopping-bag ml-2 text-primary opacity-70 transform group-hover:scale-110 transition-transform duration-300"></i>
+                        <span>المنتجات</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                    
+                    <a href="{% url 'boutiqe:contact' %}" class="nav-link text-gray-700 hover:text-primary px-4 py-3 rounded-md text-base font-medium transition-all duration-300 flex items-center relative overflow-hidden group {% if request.resolver_match.url_name == 'contact' %}active-nav{% endif %}">
+                        <i class="fas fa-envelope ml-2 text-primary opacity-70 transform group-hover:scale-110 transition-transform duration-300"></i>
+                        <span>تواصل معنا</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </nav>
+                
+                <!-- User actions - Desktop Only -->
+                <div class="hidden md:flex items-center space-x-6 space-x-reverse md:mt-4">
+                    <a href="{% url 'boutiqe:wishlist' %}" class="action-icon-wrapper {% if request.resolver_match.url_name == 'wishlist' %}active-icon{% endif %}">
+                        <div class="action-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <span id="wishlist-count" class="action-count">
+                            {{ wishlist_count }}
+                        </span>
+                    </a>
+                    <a href="{% url 'boutiqe:cart' %}" class="action-icon-wrapper {% if request.resolver_match.url_name == 'cart' %}active-icon{% endif %}" id="cart-toggle-desktop">
+                        <div class="action-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <span class="cart-count action-count">
+                            {{ cart_item_count }}
+                        </span>
+                    </a>
+                    <div class="relative group">
+                        <button class="action-icon-wrapper focus:outline-none">
+                            <div class="action-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </button>
+                        <div class="account-dropdown">
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'boutiqe:profile' %}" class="account-link {% if request.resolver_match.url_name == 'profile' %}active-account-link{% endif %}">
+                                    <i class="fas fa-user-circle ml-2 text-primary opacity-70"></i>
+                                    <span>الملف الشخصي</span>
+                                </a>
+                                <a href="{% url 'boutiqe:orders' %}" class="account-link {% if request.resolver_match.url_name == 'orders' %}active-account-link{% endif %}">
+                                    <i class="fas fa-box ml-2 text-primary opacity-70"></i>
+                                    <span>طلباتي</span>
+                                </a>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{% url 'boutiqe:logout' %}" class="account-link text-red-500 hover:bg-red-50">
+                                    <i class="fas fa-sign-out-alt ml-2 opacity-70"></i>
+                                    <span>تسجيل الخروج</span>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'boutiqe:login' %}" class="account-link">
+                                    <i class="fas fa-sign-in-alt ml-2 text-primary opacity-70"></i>
+                                    <span>تسجيل الدخول</span>
+                                </a>
+                                <a href="{% url 'boutiqe:register' %}" class="account-link">
+                                    <i class="fas fa-user-plus ml-2 text-primary opacity-70"></i>
+                                    <span>تسجيل الحساب</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Search Bar - Hidden by default -->
+        <div id="mobile-search-bar" class="hidden md:hidden px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
+            <div class="relative">
+                <input 
+                    type="text" 
+                    id="mobile-search-input" 
+                    class="search-input w-full px-5 py-3 pr-12 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200" 
+                    placeholder="ابحث عن منتجات..."
+                    autocomplete="off"
+                >
+                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <i class="fas fa-search text-primary/70"></i>
+                </span>
+                <span class="search-loading absolute left-4 top-1/2 transform -translate-y-1/2">
+                    <svg class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
+                <div id="mobile-search-results" class="search-results rounded-lg mt-1"></div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="bg-{{message.tags}} text-white p-4 rounded-lg shadow-md mb-4 flex justify-between items-center fade-in">
+                    <p>{{ message }}</p>
+                    <button class="text-white close-message">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav md:hidden">
+        <a href="{% url 'boutiqe:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <div class="nav-item" id="mobile-categories-toggle">
+            <i class="fas fa-th-large"></i>
+            <span>الفئات</span>
+        </div>
+        <a href="{% url 'boutiqe:product_list' %}" class="nav-item {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+            <i class="fas fa-shopping-bag"></i>
+            <span>المنتجات</span>
+        </a>
+        <a href="{% url 'boutiqe:cart' %}" class="nav-item {% if request.resolver_match.url_name == 'cart' %}active{% endif %}" id="cart-toggle-mobile">
+            <i class="fas fa-shopping-cart"></i>
+            <span>العربة</span>
+            <span class="cart-count absolute top-1 right-9 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {% if user.is_authenticated %}
+                    {{ user.cartitem_set.all.count }}
+                {% else %}
+                    0
+                {% endif %}
+            </span>
+        </a>
+        <a href="{% url 'boutiqe:wishlist' %}" class="nav-item {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">
+            <i class="fas fa-heart"></i>
+            <span>المفضلة</span>
+            <span class="wishlist-count absolute top-1 right-9 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {% if user.is_authenticated %}
+                    {{ user.wishlist_set.all.count }}
+                {% else %}
+                    0
+                {% endif %}
+            </span>
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'boutiqe:profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>الحساب</span>
+        </a>
+        {% else %}
+        <a href="{% url 'boutiqe:login' %}" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>الحساب</span>
+        </a>
+        {% endif %}
+    </nav>
+    
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-sidebar-overlay" id="cart-sidebar-overlay"></div>
+        <div class="cart-sidebar-content">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">عربة المشتريات</h2>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-gray-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4" id="cart-items-container">
+                <!-- Cart items will be loaded here -->
+                <div class="min-h-[150px] flex items-center justify-center" id="cart-loading">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t bg-gray-50">
+                <div class="flex justify-between mb-4">
+                    <span class="font-medium text-gray-700">المجموع الفرعي:</span>
+                    <span class="font-bold text-lg" id="cart-sidebar-total">₪<span id="cart-sidebar-total-amount">0.00</span></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="{% url 'boutiqe:cart' %}" class="text-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 font-medium py-3 px-4 rounded-lg transition duration-300">
+                        رؤية العربة
+                    </a>
+                    <a href="{% url 'boutiqe:checkout' %}" id="checkout-btn" class="text-center bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                        إنهاء الطلب
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="mb-8 md:mb-0">
+                    <h3 class="text-xl font-bold mb-4">بوتيك لوراس</h3>
+                    <p class="text-gray-300 mb-4">
+                        متجر أزياء نسائية راقية يقدم أحدث الموديلات العصرية بأفضل الأسعار.
+                    </p>
+                    <div class="flex space-x-4 space-x-reverse">
+                        <a href="#" class="text-gray-300 hover:text-primary transition">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-primary transition">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-primary transition">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-primary transition">
+                            <i class="fab fa-tiktok text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">روابط مهمة</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'boutiqe:home' %}" class="text-gray-300 hover:text-primary transition">الرئيسية</a></li>
+                        <li><a href="{% url 'boutiqe:product_list' %}" class="text-gray-300 hover:text-primary transition">منتجاتنا</a></li>
+                        <li><a href="{% url 'boutiqe:cart' %}" class="text-gray-300 hover:text-primary transition">سلة التسوق</a></li>
+                        <li><a href="{% url 'boutiqe:wishlist' %}" class="text-gray-300 hover:text-primary transition">قائمة المفضلة</a></li>
+                    </ul>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">تواصل معنا</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-map-marker-alt w-5 text-primary"></i>
+                            <span class="text-gray-300">الرياض، المملكة العربية السعودية</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone w-5 text-primary"></i>
+                            <span class="text-gray-300">+966 50 123 4567</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope w-5 text-primary"></i>
+                            <span class="text-gray-300">info@loras.com</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">النشرة البريدية</h3>
+                    <p class="text-gray-300 mb-4">
+                        اشترك في نشرتنا البريدية للحصول على آخر العروض والتخفيضات.
+                    </p>
+                    <div class="flex">
+                        <input type="email" placeholder="بريدك الإلكتروني" class="px-4 py-2 rounded-r-md focus:outline-none text-gray-800 w-full" />
+                        <button class="bg-primary hover:bg-secondary transition duration-300 px-4 py-2 rounded-l-md">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center">
+                <p class="text-gray-300">&copy; 2023 بوتيك لوراس. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <!-- Block for additional JS -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Mobile Categories Menu (Hidden by default) -->
+    <div id="mobile-categories-menu" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 hidden">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] transform transition-transform duration-300 translate-y-full" id="mobile-categories-panel">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h3 class="text-lg font-bold">الفئات</h3>
+                <button id="close-categories" class="text-gray-500 hover:text-gray-700 w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-gray-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto custom-scrollbar" style="max-height: calc(80vh - 60px);">
+                <div class="py-2">
+                    {% for category in categories|default:'' %}
+                    <a href="{% url 'boutiqe:product_list_by_category' category.slug %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-100">
+                        {% if category.image %}
+                        <div class="w-10 h-10 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 ml-3">
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover">
+                        </div>
+                        {% else %}
+                        <div class="w-10 h-10 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 ml-3 flex items-center justify-center text-gray-400">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h4 class="font-medium">{{ category.name }}</h4>
+                            <p class="text-xs text-gray-500">{{ category.products.count }} منتج</p>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="px-4 py-6 text-center text-gray-500">
+                        <p>لا توجد فئات متاحة حالياً</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal Container -->
+    <div id="quick-view-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div id="quick-view-content" class="relative w-full max-w-4xl">
+                <!-- Content will be loaded here via AJAX -->
+                <div class="flex justify-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick View JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // تهيئة وظيفة المعاينة السريعة
+            // ملاحظة: هذا الكود تم استبداله بالكود في ملف js.js
+            // ولكننا نحتفظ به هنا لضمان التوافق في حالة عدم تحميل الملف الخارجي
+            
+            // فقط سنقوم بتحديد أزرار المعاينة السريعة ونحاول تهيئتها
+            // بطريقة مبسطة للتوافق مع ملف js.js
+            
+            const quickViewButtons = document.querySelectorAll('.quick-view-btn');
+            if (quickViewButtons.length > 0) {
+                console.log('تم تهيئة أزرار المعاينة السريعة في base.html');
+            }
+        });
+    </script>
+    
+    <!-- Custom Toast Notifications Script -->
+    <script src="{% static 'js/custom-toast.js' %}"></script>
+    
+    <!-- Quick View Script -->
+    <script src="{% static 'js/js.js' %}"></script>
+
+    <!-- Guest checkout upgrade 2025/05/13 -->
+    <script>
+    // Toast notification function
+    function showNotification(message, isSuccess = true) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 z-50 py-2 px-4 rounded-lg shadow-lg ${isSuccess ? 'bg-green-50 border-r-4 border-green-500' : 'bg-red-50 border-r-4 border-red-500'}`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${isSuccess ? 'fa-check-circle text-green-500' : 'fa-exclamation-circle text-red-500'} ml-2"></i>
+                <span class="${isSuccess ? 'text-green-800' : 'text-red-800'}">${message}</span>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('opacity-0', 'transition', 'duration-500');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 3000);
+    }
+
+    // Add to cart function with AJAX
+    function addToCart(productId, quantity, colorId, sizeId) {
+        // Create form data
+        const data = {
+            product_id: productId,
+            quantity: quantity || 1
+        };
+        
+        if (colorId) data.color_id = colorId;
+        if (sizeId) data.size_id = sizeId;
+        
+        // Make AJAX request
+        fetch('/add-to-cart/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update cart count
+                updateCartCounter(data.cart_count);
+                showNotification(data.message);
+            } else {
+                showNotification(data.message, false);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('حدث خطأ أثناء إضافة المنتج للسلة', false);
+        });
+    }
+
+    // Add to wishlist function with AJAX
+    function addToWishlist(productId) {
+        fetch(`/add-to-wishlist/${productId}/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateWishlistCounter(data.wishlist_count);
+            showNotification('تمت إضافة المنتج إلى قائمة المفضلة');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('حدث خطأ أثناء إضافة المنتج للمفضلة', false);
+        });
+    }
+
+    // Update cart counter
+    function updateCartCounter(count) {
+        const cartCounters = document.querySelectorAll('.cart-count');
+        cartCounters.forEach(counter => {
+            counter.textContent = count;
+            // Animate the counter
+            counter.classList.add('scale-125', 'text-white', 'bg-secondary');
+            setTimeout(() => {
+                counter.classList.remove('scale-125', 'text-white', 'bg-secondary');
+            }, 300);
+        });
+    }
+
+    // Update wishlist counter
+    function updateWishlistCounter(count) {
+        const wishlistCounter = document.getElementById('wishlist-count');
+        if (wishlistCounter) {
+            wishlistCounter.textContent = count;
+            // Animate the counter
+            wishlistCounter.classList.add('scale-125', 'text-white', 'bg-secondary');
+            setTimeout(() => {
+                wishlistCounter.classList.remove('scale-125', 'text-white', 'bg-secondary');
+            }, 300);
+        }
+    }
+
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+
+    <!-- Custom JavaScript -->
+    <script src="{% static 'js/custom.js' %}"></script>
+
+    <!-- Common JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Debug: Print CSRF token to console
+            console.log('CSRF Token in document cookie:', document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || 'Not found');
+
+            // Default notification function
+            window.showNotification = function(message, type = 'info') {
+                // تصنيف الإشعارات
+                const typeClasses = {
+                    'success': 'bg-green-500',
+                    'error': 'bg-red-500',
+                    'warning': 'bg-yellow-500',
+                    'info': 'bg-blue-500'
+                };
+                const bgClass = typeClasses[type] || typeClasses.info;
+                
+                // إنشاء عنصر الإشعار
+                const notification = document.createElement('div');
+                notification.className = `fixed bottom-5 left-5 ${bgClass} text-white py-2 px-4 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out z-50 flex items-center`;
+                
+                // إضافة أيقونة مناسبة
+                let icon = '';
+                if (type === 'success') icon = '<i class="fas fa-check-circle ml-2"></i>';
+                else if (type === 'error') icon = '<i class="fas fa-exclamation-circle ml-2"></i>';
+                else if (type === 'warning') icon = '<i class="fas fa-exclamation-triangle ml-2"></i>';
+                else icon = '<i class="fas fa-info-circle ml-2"></i>';
+                
+                // إضافة المحتوى
+                notification.innerHTML = `${icon}<span>${message}</span>`;
+                
+                // إضافة زر إغلاق
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'ml-3 text-white hover:text-gray-200 transition';
+                closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                closeBtn.addEventListener('click', function() {
+                    hideNotification(notification);
+                });
+                notification.appendChild(closeBtn);
+                
+                // إضافة إللصفحة
+                document.body.appendChild(notification);
+                
+                // تأخير ظهور الإشعار لتفعيل التأثير الانتقالي
+                setTimeout(() => {
+                    notification.style.transform = 'translateY(-20px)';
+                }, 10);
+                
+                // إخفاء تلقائي بعد ٥ ثوان
+                setTimeout(() => {
+                    hideNotification(notification);
+                }, 5000);
+            };
+            
+            // Helper function to hide notification with animation
+            function hideNotification(notification) {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(0)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }
+            
+            // Toggle Mobile Menu
+            document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const mobileMenu = document.getElementById('mobile-menu');
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                
+                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                    if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+            
+            // Get all dropdown buttons
+            const dropdownButtons = document.querySelectorAll('.dropdown-button');
+            
+            dropdownButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dropdownMenu = this.nextElementSibling;
+                    
+                    // Close all other dropdowns
+                    dropdownButtons.forEach(otherButton => {
+                        if (otherButton !== button) {
+                            const otherDropdown = otherButton.nextElementSibling;
+                            if (otherDropdown && !otherDropdown.classList.contains('hidden')) {
+                                otherDropdown.classList.add('hidden');
+                            }
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    dropdownMenu.classList.toggle('hidden');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                dropdownButtons.forEach(button => {
+                    const dropdownMenu = button.nextElementSibling;
+                    if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                        if (!dropdownMenu.contains(e.target) && !button.contains(e.target)) {
+                            dropdownMenu.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <!-- Wishlist functionality -->
+    <script src="{% static 'js/wishlist.js' %}"></script>
+</body>
+</html> 

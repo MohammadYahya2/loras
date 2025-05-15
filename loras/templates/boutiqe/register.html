@@ -1,0 +1,128 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}إنشاء حساب جديد - بوتيك لوراس{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-primary">إنشاء حساب جديد</span>
+                </li>
+            </ol>
+        </nav>
+        
+        <!-- Page Title -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">إنشاء حساب جديد</h1>
+            <p class="text-gray-600">انضمي إلى عائلة بوتيك لوراس</p>
+        </div>
+        
+        <div class="max-w-lg mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                {% if form.errors %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <strong>خطأ:</strong> يرجى تصحيح الأخطاء أدناه.
+                        <ul class="mt-2 list-disc list-inside">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                
+                <form method="post" action="{% url 'boutiqe:register' %}" class="space-y-4">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="first_name" class="block text-gray-700 font-medium mb-2">الاسم الأول</label>
+                            <input type="text" id="first_name" name="first_name" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="الاسم الأول">
+                        </div>
+                        
+                        <div>
+                            <label for="last_name" class="block text-gray-700 font-medium mb-2">الاسم الأخير</label>
+                            <input type="text" id="last_name" name="last_name" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="الاسم الأخير">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="username" class="block text-gray-700 font-medium mb-2">اسم المستخدم</label>
+                        <input type="text" id="username" name="username" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="اسم المستخدم">
+                        <p class="mt-1 text-sm text-gray-500">يجب أن يكون فريداً ويتكون من حروف وأرقام وعلامات _ فقط.</p>
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-gray-700 font-medium mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="البريد الإلكتروني">
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-gray-700 font-medium mb-2">رقم الهاتف</label>
+                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="رقم الهاتف">
+                    </div>
+                    
+                    <div>
+                        <label for="password1" class="block text-gray-700 font-medium mb-2">كلمة المرور</label>
+                        <input type="password" id="password1" name="password1" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="كلمة المرور">
+                        <p class="mt-1 text-sm text-gray-500">كلمة المرور يجب أن تتكون من 8 أحرف على الأقل وتحتوي على أحرف وأرقام ورموز.</p>
+                    </div>
+                    
+                    <div>
+                        <label for="password2" class="block text-gray-700 font-medium mb-2">تأكيد كلمة المرور</label>
+                        <input type="password" id="password2" name="password2" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="تأكيد كلمة المرور">
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="agree_terms" name="agree_terms" required class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                        <label for="agree_terms" class="mr-2 block text-sm text-gray-700">
+                            أوافق على <a href="#" class="text-primary hover:text-secondary">شروط الاستخدام</a> و <a href="#" class="text-primary hover:text-secondary">سياسة الخصوصية</a>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-md transition duration-300">
+                            إنشاء حساب
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-6 text-center text-sm">
+                    <p class="text-gray-600">
+                        لديك حساب بالفعل؟ <a href="{% url 'boutiqe:login' %}" class="text-primary hover:text-secondary font-medium">تسجيل الدخول</a>
+                    </p>
+                </div>
+                
+                <div class="relative mt-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">أو التسجيل باستخدام</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <a href="#" class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fab fa-google text-red-600 ml-2"></i>
+                        جوجل
+                    </a>
+                    <a href="#" class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fab fa-facebook text-blue-600 ml-2"></i>
+                        فيسبوك
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

@@ -1,0 +1,125 @@
+{% extends 'boutiqe/admin/base.html' %}
+{% load static %}
+
+{% block title %}كوبونات الخصم - لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">كوبونات الخصم</h1>
+        <a href="{% url 'boutiqe:admin_coupon_create' %}" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center">
+            <i class="fas fa-plus ml-2"></i>
+            إضافة كوبون جديد
+        </a>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <form method="get" action="{% url 'boutiqe:admin_coupons' %}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">بحث</label>
+                <input type="text" id="search" name="search" placeholder="ابحث باسم الكود" value="{{ search_query }}" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+            </div>
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">الحالة</label>
+                <select id="status" name="status" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                    <option value="" {% if not status_filter %}selected{% endif %}>جميع الكوبونات</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>الكوبونات النشطة</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>الكوبونات غير النشطة</option>
+                    <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>الكوبونات المنتهية</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-md transition duration-300 w-full">
+                    <i class="fas fa-search ml-2"></i>
+                    تطبيق الفلاتر
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Coupons List -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        {% if coupons %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-100 text-gray-800">
+                        <tr>
+                            <th class="py-3 px-4 text-right font-semibold">كود الكوبون</th>
+                            <th class="py-3 px-4 text-right font-semibold">قيمة الخصم</th>
+                            <th class="py-3 px-4 text-right font-semibold">نوع الخصم</th>
+                            <th class="py-3 px-4 text-right font-semibold">الحد الأدنى للطلب</th>
+                            <th class="py-3 px-4 text-right font-semibold">صالح من</th>
+                            <th class="py-3 px-4 text-right font-semibold">صالح حتى</th>
+                            <th class="py-3 px-4 text-right font-semibold">الاستخدامات</th>
+                            <th class="py-3 px-4 text-right font-semibold">الحالة</th>
+                            <th class="py-3 px-4 text-right font-semibold">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for coupon in coupons %}
+                            <tr class="hover:bg-gray-50 transition duration-150">
+                                <td class="py-3 px-4 font-bold">{{ coupon.code }}</td>
+                                <td class="py-3 px-4">
+                                    {% if coupon.discount_type == 'percentage' %}
+                                        {{ coupon.discount_value }}%
+                                    {% else %}
+                                        {{ coupon.discount_value }} ريال
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    {% if coupon.discount_type == 'percentage' %}
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">نسبة مئوية</span>
+                                    {% else %}
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">مبلغ ثابت</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">{{ coupon.minimum_order_value }} ريال</td>
+                                <td class="py-3 px-4 text-sm">{{ coupon.valid_from|date:"Y-m-d H:i" }}</td>
+                                <td class="py-3 px-4 text-sm">{{ coupon.valid_to|date:"Y-m-d H:i" }}</td>
+                                <td class="py-3 px-4">{{ coupon.current_uses }}/{{ coupon.max_uses }}</td>
+                                <td class="py-3 px-4">
+                                    {% if coupon.is_active %}
+                                        {% if coupon.is_valid %}
+                                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">نشط</span>
+                                        {% else %}
+                                            <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">منتهي</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">غير نشط</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                        <a href="{% url 'boutiqe:admin_coupon_edit' coupon.id %}" class="text-blue-600 hover:text-blue-900" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'boutiqe:admin_coupon_delete' coupon.id %}" class="text-red-600 hover:text-red-900" title="حذف">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                        <a href="{% url 'boutiqe:admin_coupon_usage' coupon.id %}" class="text-purple-600 hover:text-purple-900" title="عرض الاستخدامات">
+                                            <i class="fas fa-users"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-8 text-center">
+                <div class="text-gray-500 text-5xl mb-4">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">لا توجد كوبونات خصم</h3>
+                <p class="text-gray-500 mb-6">قم بإضافة كوبونات خصم لجذب المزيد من العملاء</p>
+                <a href="{% url 'boutiqe:admin_coupon_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-secondary transition duration-300">
+                    <i class="fas fa-plus ml-2"></i>
+                    إضافة كوبون جديد
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

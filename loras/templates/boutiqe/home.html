@@ -1,0 +1,1454 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+{% load boutiqe_tags %}
+
+{% block title %}بوتيك لوراس - متجر الأزياء النسائية الراقية{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes floatAnimation {
+        0% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-15px);
+        }
+        100% {
+            transform: translateY(0px);
+        }
+    }
+    
+    .hero-wrapper {
+        position: relative;
+        overflow: hidden;
+        margin-top: 0; /* Changed from -1.5rem to resolve positioning issues */
+        padding-top: 0;
+        margin-bottom: 2rem;
+        height: 80vh; /* Set fixed height */
+        min-height: 600px; /* Ensure minimum height */
+        width: 100%;
+    }
+    
+    .hero-wrapper::before,
+    .hero-wrapper::after {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: linear-gradient(to right, rgba(255, 123, 172, 0.2), rgba(249, 168, 212, 0.2));
+        z-index: 1;
+        pointer-events: none; /* Ensure decorations don't interfere with clicks */
+    }
+    
+    .hero-wrapper::before {
+        top: -100px;
+        right: -100px;
+        animation: floatAnimation 12s ease-in-out infinite;
+    }
+    
+    .hero-wrapper::after {
+        bottom: -100px;
+        left: -100px;
+        animation: floatAnimation 15s ease-in-out infinite reverse;
+    }
+    
+    /* Hero slider container fixes */
+    .hero-slider {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .slider-container {
+        height: 100%;
+        width: 100%;
+        position: relative;
+    }
+    
+    /* Full-screen hero slider */
+    .hero-slide {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        z-index: 1;
+    }
+    
+    .hero-slide-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        transition: transform 0.7s ease-in-out;
+    }
+    
+    .hero-slide-bg::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0.2));
+        z-index: 1;
+    }
+    
+    .hero-slide:hover .hero-slide-bg {
+        transform: scale(1.05);
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Animation classes */
+    .animate-fadeInUp {
+        animation: fadeInUp 1s both;
+    }
+    
+    .animate-fadeInLeft {
+        animation: fadeInLeft 1s both;
+    }
+    
+    .animate-fadeInRight {
+        animation: fadeInRight 1s both;
+    }
+    
+    .animate-delay-300 {
+        animation-delay: 300ms;
+    }
+    
+    .animate-delay-600 {
+        animation-delay: 600ms;
+    }
+    
+    /* Ensure slider dots are visible and properly styled */
+    .slider-controls {
+        position: absolute;
+        bottom: 2rem;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    .slider-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(255,255,255,0.5);
+        margin: 0 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .slider-dot:hover {
+        background-color: var(--tw-color-primary);
+    }
+    
+    .slider-dot.active {
+        width: 30px;
+        border-radius: 10px;
+        background-color: var(--tw-color-primary);
+        border-color: rgba(255,255,255,0.3);
+    }
+    
+    /* Rest of your CSS remains the same */
+    .hero-accent {
+        position: absolute;
+        z-index: 1;
+    }
+    
+    .hero-accent-1 {
+        top: 20%;
+        right: 5%;
+        width: 80px;
+        height: 80px;
+        border-radius: 30px;
+        background: rgba(249, 168, 212, 0.2);
+        transform: rotate(45deg);
+        animation: floatAnimation 8s ease-in-out infinite;
+    }
+    
+    .hero-accent-2 {
+        bottom: 15%;
+        left: 10%;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(255, 123, 172, 0.15);
+        animation: floatAnimation 10s ease-in-out infinite reverse;
+    }
+    
+    .hero-badge {
+        background: linear-gradient(to right, var(--tw-color-primary), var(--tw-color-secondary));
+        color: white;
+        font-weight: bold;
+        font-size: 0.8rem;
+        padding: 8px 20px;
+        border-radius: 30px;
+        box-shadow: 0 5px 15px rgba(255, 123, 172, 0.4);
+        z-index: 2;
+        white-space: nowrap;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-cta {
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .hero-cta::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, var(--tw-color-primary), var(--tw-color-secondary));
+        z-index: -1;
+        transition: transform 0.3s ease;
+        border-radius: 50px;
+    }
+    
+    .hero-cta:hover::before {
+        transform: translateY(-3px);
+    }
+    
+    .hero-cta:active::before {
+        transform: translateY(0);
+    }
+    
+   
+    
+    @media (max-width: 768px) {
+        .hero-wrapper {
+            height: 70vh;
+            min-height: 500px;
+        }
+        
+        .hero-badge {
+            font-size: 0.7rem;
+            padding: 5px 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="relative hero-wrapper bg-white">
+        <!-- Decorative elements -->
+        <div class="hero-accent hero-accent-1"></div>
+        <div class="hero-accent hero-accent-2"></div>
+        
+        <div class="hero-slider">
+            <div class="slider-container">
+                <!-- Slider Item 1 -->
+                <div class="slider-item hero-slide">
+                    <div class="hero-slide-bg" style="background-image: url('https://images.pexels.com/photos/1462637/pexels-photo-1462637.jpeg?auto=compress&cs=tinysrgb&w=1200');"></div>
+                    <div class="hero-content">
+                        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
+                            <div class="hero-divider mx-auto animate-fadeInLeft"></div>
+                            <span class="hero-badge inline-block animate-fadeInLeft">مجموعة حصرية</span>
+                            <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 animate-fadeInUp">أزياء ربيعية <br><span class="text-primary">بأناقة لا تضاهى</span></h1>
+                            <p class="text-white text-lg mb-8 max-w-lg mx-auto animate-fadeInUp animate-delay-300">
+                                استكشفي أحدث صيحات الموضة النسائية بإطلالات عصرية وأنيقة مناسبة لجميع المناسبات بتصاميم فاخرة
+                            </p>
+                            <div class="flex flex-wrap gap-3 justify-center animate-fadeInUp animate-delay-600">
+                                <a href="{% url 'boutiqe:product_list' %}" class="hero-cta inline-block bg-primary text-white font-bold py-4 px-8 rounded-full text-base transition duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                                    تسوقي الآن
+                                    <i class="fas fa-arrow-left mr-2 text-sm transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                                <a href="{% url 'boutiqe:product_list' %}" class="inline-block bg-transparent text-white font-bold py-4 px-8 rounded-full text-base border-2 border-white/40 hover:border-white transition duration-300 hover:-translate-y-1">
+                                    اكتشفي المزيد
+                                </a>
+                            </div>
+                            
+                            <div class="flex items-center gap-6 mt-8 justify-center animate-fadeInUp animate-delay-600">
+                                <div class="flex items-center">
+                                    <i class="fas fa-truck text-primary text-xl mr-3"></i>
+                                    <span class="text-white font-medium">توصيل سريع</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-shield-alt text-primary text-xl mr-3"></i>
+                                    <span class="text-white font-medium">ضمان الجودة</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slider Item 2 -->
+                <div class="slider-item hero-slide">
+                    <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1566206091558-7f218b696731?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80');"></div>
+                    <div class="hero-content">
+                        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
+                            <div class="hero-divider mx-auto animate-fadeInLeft"></div>
+                            <span class="hero-badge inline-block bg-red-500 animate-fadeInLeft">خصم 50%</span>
+                            <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 animate-fadeInUp">خصومات تصل إلى <br><span class="text-primary">50%</span> على الأزياء</h1>
+                            <p class="text-white text-lg mb-8 max-w-lg mx-auto animate-fadeInUp animate-delay-300">
+                                استمتعي بأقوى العروض على تشكيلة واسعة من الفساتين والبلوزات والإكسسوارات النسائية الراقية
+                            </p>
+                            <div class="flex flex-wrap gap-3 justify-center animate-fadeInUp animate-delay-600">
+                                <a href="{% url 'boutiqe:product_list' %}" class="hero-cta inline-block bg-primary text-white font-bold py-4 px-8 rounded-full text-base transition duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                                    تسوقي العروض
+                                    <i class="fas fa-arrow-left mr-2 text-sm transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                                <a href="{% url 'boutiqe:product_list' %}" class="inline-block bg-transparent text-white font-bold py-4 px-8 rounded-full text-base border-2 border-white/40 hover:border-white transition duration-300 hover:-translate-y-1">
+                                    مشاهدة الكل
+                                </a>
+                            </div>
+                            
+                            <div class="flex items-center mt-8 justify-center animate-fadeInUp animate-delay-600">
+                                <span class="text-2xl font-bold text-white">العرض ينتهي خلال: </span>
+                                <div class="flex gap-3 mr-3">
+                                    <div class="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg">
+                                        <span class="text-xl font-bold text-primary">03</span>
+                                        <span class="text-xs block text-white">أيام</span>
+                                    </div>
+                                    <div class="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg">
+                                        <span class="text-xl font-bold text-primary">12</span>
+                                        <span class="text-xs block text-white">ساعة</span>
+                                    </div>
+                                    <div class="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg">
+                                        <span class="text-xl font-bold text-primary">45</span>
+                                        <span class="text-xs block text-white">دقيقة</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slider Item 3 -->
+                <div class="slider-item hero-slide">
+                    <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1581044777550-4cfa60707c03?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80');"></div>
+                    <div class="hero-content">
+                        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
+                            <div class="hero-divider mx-auto animate-fadeInLeft"></div>
+                            <span class="hero-badge inline-block animate-fadeInLeft">مجموعة فاخرة</span>
+                            <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 animate-fadeInUp">إطلالة <span class="text-primary">مثالية</span><br>لكل مناسبة</h1>
+                            <p class="text-white text-lg mb-8 max-w-lg mx-auto animate-fadeInUp animate-delay-300">
+                                اختاري من تشكيلتنا الواسعة من الأزياء الراقية والفاخرة المصممة خصيصاً لتناسب جميع المناسبات
+                            </p>
+                            <div class="flex flex-wrap gap-3 justify-center animate-fadeInUp animate-delay-600">
+                                <a href="{% url 'boutiqe:product_list' %}" class="hero-cta inline-block bg-primary text-white font-bold py-4 px-8 rounded-full text-base transition duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                                    تسوقي الآن
+                                    <i class="fas fa-arrow-left mr-2 text-sm transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                                <a href="{% url 'boutiqe:product_list' %}" class="inline-block bg-transparent text-white font-bold py-4 px-8 rounded-full text-base border-2 border-white/40 hover:border-white transition duration-300 hover:-translate-y-1">
+                                    عرض التشكيلة
+                                </a>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mt-8 mx-auto max-w-lg animate-fadeInUp animate-delay-600">
+                                <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl flex items-center">
+                                    <span class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-gem text-primary"></i>
+                                    </span>
+                                    <div>
+                                        <span class="block font-semibold text-white">منتجات فاخرة</span>
+                                        <span class="text-xs text-white/70">أعلى جودة وتصاميم</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl flex items-center">
+                                    <span class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-tags text-primary"></i>
+                                    </span>
+                                    <div>
+                                        <span class="block font-semibold text-white">أسعار تنافسية</span>
+                                        <span class="text-xs text-white/70">قيمة مقابل المال</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+        </div>
+        
+        <!-- Slider Controls - Moved inside the hero-wrapper section for proper positioning -->
+        <div class="slider-controls">
+            <button class="slider-dot active" data-index="0"></button>
+            <button class="slider-dot" data-index="1"></button>
+            <button class="slider-dot" data-index="2"></button>
+        </div>
+    </section>
+    <!-- Slider Controls - Removing this outside section -->
+    
+    <!-- Categories Section -->
+    <section class="py-12 mt-10 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-2 font-serif text-primary">تسوقي حسب الفئة</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mb-4"></div>
+                <p class="text-gray-600">اكتشفي تشكيلة واسعة من الأزياء المميزة</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for category in categories %}
+                    <a href="{% url 'boutiqe:product_list_by_category' category.slug %}" class="group">
+                        <div class="relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 h-64">
+                            {% if category.image %}
+                                <img src="{% url 'boutiqe:serve_media' category.image.name %}" alt="{{ category.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            {% else %}
+                                <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-folder text-4xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full text-center transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-2">{{ category.name }}</h3>
+                                    <span class="inline-flex items-center text-sm text-white/80 group-hover:text-white transition px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+                                        <span>تسوقي الآن</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Rounded highlight in corner -->
+                            <div class="absolute top-3 right-3 w-10 h-10 rounded-full bg-primary/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform rotate-45"></div>
+                        </div>
+                    </a>
+                {% empty %}
+                    <!-- Placeholder Categories if no categories exist -->
+                    <a href="#" class="group">
+                        <div class="relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 h-64">
+                            <img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80" alt="فساتين" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full text-center transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-2">فساتين</h3>
+                                    <span class="inline-flex items-center text-sm text-white/80 group-hover:text-white transition px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+                                        <span>تسوقي الآن</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Rounded highlight in corner -->
+                            <div class="absolute top-3 right-3 w-10 h-10 rounded-full bg-primary/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform rotate-45"></div>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="group">
+                        <div class="relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 h-64">
+                            <img src="https://images.unsplash.com/photo-1485968579580-b6d095142e6e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=686&q=80" alt="بلوزات" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full text-center transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-2">بلوزات</h3>
+                                    <span class="inline-flex items-center text-sm text-white/80 group-hover:text-white transition px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+                                        <span>تسوقي الآن</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Rounded highlight in corner -->
+                            <div class="absolute top-3 right-3 w-10 h-10 rounded-full bg-primary/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform rotate-45"></div>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="group">
+                        <div class="relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 h-64">
+                            <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80" alt="إكسسوارات" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full text-center transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-2">إكسسوارات</h3>
+                                    <span class="inline-flex items-center text-sm text-white/80 group-hover:text-white transition px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+                                        <span>تسوقي الآن</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Rounded highlight in corner -->
+                            <div class="absolute top-3 right-3 w-10 h-10 rounded-full bg-primary/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform rotate-45"></div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Products Section -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-2 font-serif text-primary">منتجات مميزة</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mb-4"></div>
+                <p class="text-gray-600">أفضل منتجاتنا المختارة خصيصًا لكِ</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for product in featured_products %}
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 group overflow-hidden">
+                        <a href="{% url 'boutiqe:product_detail' product.slug %}" class="block relative h-64 overflow-hidden rounded-t-xl">
+                            {% if product.images.first %}
+                                {% with main_image=False %}
+                                    {% for image in product.images.all %}
+                                        {% if image.is_main and not main_image %}
+                                            <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                            {% with main_image=True %}{% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not main_image %}
+                                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if product.discount_price %}
+                                <div class="absolute top-3 left-3 bg-red-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md">
+                                    خصم {{ product.get_discount_percent }}%
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Wishlist button -->
+                            <button type="button" class="wishlist-toggle-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md" data-product="{{ product.id }}">
+                                <i class="{% if product|is_in_wishlist:user %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </button>
+                            
+                            <!-- Quick View Button -->
+                            <div class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button type="button" class="quick-view-btn w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-gray-800 hover:bg-gray-800 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md" data-product="{{ product.id }}" title="عرض سريع">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </a>
+                        
+                        <div class="p-5 text-center">
+                            <a href="{% url 'boutiqe:product_detail' product.slug %}" class="block">
+                                <h3 class="text-lg font-bold text-gray-800 hover:text-primary transition mb-2 line-clamp-1">{{ product.name }}</h3>
+                            </a>
+                            <p class="text-gray-600 text-sm line-clamp-1 mb-3">{{ product.description|truncatechars:60 }}</p>
+                            
+                            <!-- Price Block -->
+                            <div class="flex items-center justify-center mt-1 mb-4">
+                                {% if product.discount_price %}
+                                    <span class="text-primary font-bold text-xl">₪{{ product.discount_price }}</span>
+                                    <span class="text-gray-400 line-through text-sm mr-2">₪{{ product.price }}</span>
+                                {% else %}
+                                    <span class="text-primary font-bold text-xl">₪{{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex gap-2 items-center">
+                                <a href="{% url 'boutiqe:add_to_cart_by_id' product.id %}" class="flex-1 bg-primary text-white hover:bg-secondary py-2 px-3 rounded-md transition duration-300 text-sm font-medium flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart ml-1"></i>
+                                    إضافة للسلة
+                                </a>
+                                <a href="{% url 'boutiqe:product_detail' product.slug %}" class="px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition duration-300">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- Placeholder Products if no featured products exist -->
+                    {% for i in "1234" %}
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 overflow-hidden">
+                            <div class="relative h-64 overflow-hidden rounded-t-xl">
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                                </div>
+                                <div class="absolute top-3 left-3 bg-red-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md">
+                                    خصم 25%
+                                </div>
+                                
+                                <!-- Wishlist button placeholder -->
+                                <button type="button" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="p-5 text-center">
+                                <h3 class="text-lg font-bold text-gray-800 hover:text-primary transition mb-2 line-clamp-1">فستان أنيق</h3>
+                                <p class="text-gray-600 text-sm mb-3 line-clamp-1">فستان نسائي أنيق بتصميم عصري مع تفاصيل مميزة</p>
+                                
+                                <div class="flex items-center justify-center mt-1 mb-4">
+                                    <span class="text-primary font-bold text-xl">₪375</span>
+                                    <span class="text-gray-400 line-through text-sm mr-2">₪500</span>
+                                </div>
+                                
+                                <div class="flex gap-2 items-center">
+                                    <a href="#" class="flex-1 bg-primary text-white hover:bg-secondary py-2 px-3 rounded-md transition duration-300 text-sm font-medium flex items-center justify-center">
+                                        <i class="fas fa-shopping-cart ml-1"></i>
+                                        إضافة للسلة
+                                    </a>
+                                    <a href="#" class="px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition duration-300">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-10">
+                <a href="{% url 'boutiqe:product_list' %}" class="inline-block bg-primary text-white hover:bg-secondary font-medium py-3 px-8 rounded-md transition duration-300 shadow-md">عرض جميع المنتجات</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- New Arrivals Section -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-2 font-serif text-primary">وصل حديثاً</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mb-4"></div>
+                <p class="text-gray-600">أحدث منتجاتنا وصولاً لكِ</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for product in new_arrivals %}
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 group overflow-hidden">
+                        <a href="{% url 'boutiqe:product_detail' product.slug %}" class="block relative h-64 overflow-hidden rounded-t-xl">
+                            {% if product.images.first %}
+                                {% with main_image=False %}
+                                    {% for image in product.images.all %}
+                                        {% if image.is_main and not main_image %}
+                                            <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                            {% with main_image=True %}{% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not main_image %}
+                                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if product.discount_price %}
+                                <div class="absolute top-3 left-3 bg-red-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md">
+                                    خصم {{ product.get_discount_percent }}%
+                                </div>
+                            {% else %}
+                                <div class="absolute top-3 left-3 bg-green-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md">
+                                    جديد
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Wishlist button -->
+                            <button type="button" class="wishlist-toggle-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md" data-product="{{ product.id }}">
+                                <i class="{% if product|is_in_wishlist:user %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </button>
+                            
+                            <!-- Quick View Button -->
+                            <div class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button type="button" class="quick-view-btn w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-gray-800 hover:bg-gray-800 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md" data-product="{{ product.id }}" title="عرض سريع">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </a>
+                        
+                        <div class="p-5 text-center">
+                            <a href="{% url 'boutiqe:product_detail' product.slug %}" class="block">
+                                <h3 class="text-lg font-bold text-gray-800 hover:text-primary transition mb-2 line-clamp-1">{{ product.name }}</h3>
+                            </a>
+                            <p class="text-gray-600 text-sm line-clamp-1 mb-3">{{ product.description|truncatechars:60 }}</p>
+                            
+                            <!-- Price Block -->
+                            <div class="flex items-center justify-center mt-1 mb-4">
+                                {% if product.discount_price %}
+                                    <span class="text-primary font-bold text-xl">₪{{ product.discount_price }}</span>
+                                    <span class="text-gray-400 line-through text-sm mr-2">₪{{ product.price }}</span>
+                                {% else %}
+                                    <span class="text-primary font-bold text-xl">₪{{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex gap-2 items-center">
+                                <a href="{% url 'boutiqe:add_to_cart_by_id' product.id %}" class="flex-1 bg-primary text-white hover:bg-secondary py-2 px-3 rounded-md transition duration-300 text-sm font-medium flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart ml-1"></i>
+                                    إضافة للسلة
+                                </a>
+                                <a href="{% url 'boutiqe:product_detail' product.slug %}" class="px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition duration-300">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- Placeholder Products if no new arrivals exist -->
+                    {% for i in "1234" %}
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 overflow-hidden">
+                            <div class="relative h-64 overflow-hidden rounded-t-xl">
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                                </div>
+                                <div class="absolute top-3 left-3 bg-green-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md">
+                                    جديد
+                                </div>
+                            </div>
+                            
+                            <div class="p-5 text-center">
+                                <h3 class="text-lg font-bold text-gray-800 hover:text-primary transition mb-2">فستان أنيق</h3>
+                                <p class="text-gray-600 text-sm mb-3 line-clamp-2">فستان نسائي أنيق بتصميم عصري مع تفاصيل مميزة تناسب مختلف المناسبات.</p>
+                                
+                                <div class="flex items-center justify-center mt-2">
+                                    <span class="text-primary font-bold text-xl">₪250</span>
+                                </div>
+                                
+                                <a href="#" class="inline-block w-full mt-4 py-2 px-4 bg-white border border-primary text-primary hover:bg-primary hover:text-white rounded-md transition duration-300 text-sm font-medium">
+                                    إضافة للسلة
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-10">
+                <a href="{% url 'boutiqe:product_list' %}" class="inline-block bg-primary text-white hover:bg-secondary font-medium py-3 px-8 rounded-md transition duration-300 shadow-md">عرض جميع المنتجات</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Trending Collections Section -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-2 font-serif text-primary">المجموعات الرائجة</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mb-4"></div>
+                <p class="text-gray-600">اكتشفي مجموعاتنا المميزة بتصاميم فاخرة</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {% for collection in trending_collections %}
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <div class="relative h-72 overflow-hidden rounded-xl">
+                            {% if collection.image %}
+                                <img src="{{ collection.image.url }}" alt="{{ collection.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-images text-4xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-3">{{ collection.name }}</h3>
+                                    <p class="text-sm text-white/90 mb-5 line-clamp-2 transition-opacity duration-300 opacity-90 group-hover:opacity-100">{{ collection.description|truncatechars:100 }}</p>
+                                    <a href="{% url 'boutiqe:product_list' %}?collection={{ collection.slug }}" class="inline-flex items-center bg-primary hover:bg-secondary text-white text-sm font-medium px-5 py-2.5 rounded-md transition duration-300 shadow-md group-hover:shadow-lg">
+                                        <span>استكشفي المجموعة</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Collection Badge -->
+                            <div class="absolute top-4 right-4 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-primary font-bold text-sm rounded-full shadow-md transform -rotate-2">
+                                مجموعة حصرية
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- Placeholder Collections if no trending collections exist -->
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <div class="relative h-72 overflow-hidden rounded-xl">
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-images text-4xl text-gray-400"></i>
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-3">مجموعة الموسم</h3>
+                                    <p class="text-sm text-white/90 mb-5 line-clamp-2 transition-opacity duration-300 opacity-90 group-hover:opacity-100">تشكيلة مميزة من أحدث صيحات الموضة للموسم الحالي</p>
+                                    <a href="#" class="inline-flex items-center bg-primary hover:bg-secondary text-white text-sm font-medium px-5 py-2.5 rounded-md transition duration-300 shadow-md group-hover:shadow-lg">
+                                        <span>استكشفي المجموعة</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Collection Badge -->
+                            <div class="absolute top-4 right-4 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-primary font-bold text-sm rounded-full shadow-md transform -rotate-2">
+                                مجموعة حصرية
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <div class="relative h-72 overflow-hidden rounded-xl">
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-images text-4xl text-gray-400"></i>
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-3">مجموعة السهرات</h3>
+                                    <p class="text-sm text-white/90 mb-5 line-clamp-2 transition-opacity duration-300 opacity-90 group-hover:opacity-100">تشكيلة راقية من أزياء السهرات والمناسبات الخاصة</p>
+                                    <a href="#" class="inline-flex items-center bg-primary hover:bg-secondary text-white text-sm font-medium px-5 py-2.5 rounded-md transition duration-300 shadow-md group-hover:shadow-lg">
+                                        <span>استكشفي المجموعة</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Collection Badge -->
+                            <div class="absolute top-4 right-4 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-primary font-bold text-sm rounded-full shadow-md transform -rotate-2">
+                                مجموعة حصرية
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <div class="relative h-72 overflow-hidden rounded-xl">
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-images text-4xl text-gray-400"></i>
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                                <div class="p-6 w-full transition-transform duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                    <h3 class="text-xl font-bold text-white mb-3">مجموعة العبايات</h3>
+                                    <p class="text-sm text-white/90 mb-5 line-clamp-2 transition-opacity duration-300 opacity-90 group-hover:opacity-100">تشكيلة مميزة من العبايات الفاخرة بتصاميم عصرية</p>
+                                    <a href="#" class="inline-flex items-center bg-primary hover:bg-secondary text-white text-sm font-medium px-5 py-2.5 rounded-md transition duration-300 shadow-md group-hover:shadow-lg">
+                                        <span>استكشفي المجموعة</span>
+                                        <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Collection Badge -->
+                            <div class="absolute top-4 right-4 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-primary font-bold text-sm rounded-full shadow-md transform -rotate-2">
+                                مجموعة حصرية
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Active Discounts Section -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-2 font-serif text-primary">أحدث الخصومات</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mb-4"></div>
+                <p class="text-gray-600">استفيدي من أفضل العروض والخصومات المتاحة حالياً</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for discount in active_discounts %}
+                    <div class="relative bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <!-- Discount Badge -->
+                        <div class="absolute -top-6 -right-6 bg-red-500 text-white w-20 h-20 flex items-center justify-center rotate-45 z-10 shadow-md">
+                            <span class="text-xl font-bold translate-y-8 translate-x-2">
+                                {{ discount.discount_percent }}%
+                            </span>
+                        </div>
+                        
+                        <!-- Discount Image -->
+                        <div class="relative h-48 overflow-hidden">
+                            {% if discount.image %}
+                                <img src="{{ discount.image.url }}" alt="{{ discount.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            {% else %}
+                                <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
+                                    <i class="fas fa-percent text-5xl text-primary/60"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Countdown Label -->
+                            <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs px-3 py-1 rounded-full shadow-sm flex items-center">
+                                <i class="far fa-calendar-alt ml-1 text-primary"></i>
+                                <span>حتى {{ discount.end_date|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ discount.name }}</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ discount.description|truncatechars:80 }}</p>
+                            
+                            <a href="{% url 'boutiqe:product_list' %}" class="group inline-flex items-center justify-center w-full bg-primary hover:bg-secondary text-white py-2.5 px-4 rounded-md transition duration-300 shadow-md">
+                                <span class="mr-1">تسوقي الآن</span>
+                                <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- Placeholder Discounts if no active discounts exist -->
+                    <div class="relative bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <!-- Discount Badge -->
+                        <div class="absolute -top-6 -right-6 bg-red-500 text-white w-20 h-20 flex items-center justify-center rotate-45 z-10 shadow-md">
+                            <span class="text-xl font-bold translate-y-8 translate-x-2">
+                                25%
+                            </span>
+                        </div>
+                        
+                        <!-- Discount Image -->
+                        <div class="relative h-48 overflow-hidden">
+                            <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
+                                <i class="fas fa-percent text-5xl text-primary/60"></i>
+                            </div>
+                            
+                            <!-- Countdown Label -->
+                            <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs px-3 py-1 rounded-full shadow-sm flex items-center">
+                                <i class="far fa-calendar-alt ml-1 text-primary"></i>
+                                <span>حتى 30/06/2023</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">خصم على الفساتين</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">خصم حصري على جميع الفساتين لفترة محدودة</p>
+                            
+                            <a href="#" class="group inline-flex items-center justify-center w-full bg-primary hover:bg-secondary text-white py-2.5 px-4 rounded-md transition duration-300 shadow-md">
+                                <span class="mr-1">تسوقي الآن</span>
+                                <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="relative bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <!-- Discount Badge -->
+                        <div class="absolute -top-6 -right-6 bg-red-500 text-white w-20 h-20 flex items-center justify-center rotate-45 z-10 shadow-md">
+                            <span class="text-xl font-bold translate-y-8 translate-x-2">
+                                15%
+                            </span>
+                        </div>
+                        
+                        <!-- Discount Image -->
+                        <div class="relative h-48 overflow-hidden">
+                            <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
+                                <i class="fas fa-percent text-5xl text-primary/60"></i>
+                            </div>
+                            
+                            <!-- Countdown Label -->
+                            <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs px-3 py-1 rounded-full shadow-sm flex items-center">
+                                <i class="far fa-calendar-alt ml-1 text-primary"></i>
+                                <span>حتى 15/07/2023</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">خصم على البلوزات</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">خصم حصري على جميع البلوزات بمناسبة العيد</p>
+                            
+                            <a href="#" class="group inline-flex items-center justify-center w-full bg-primary hover:bg-secondary text-white py-2.5 px-4 rounded-md transition duration-300 shadow-md">
+                                <span class="mr-1">تسوقي الآن</span>
+                                <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="relative bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <!-- Discount Badge -->
+                        <div class="absolute -top-6 -right-6 bg-red-500 text-white w-20 h-20 flex items-center justify-center rotate-45 z-10 shadow-md">
+                            <span class="text-xl font-bold translate-y-8 translate-x-2">
+                                50 ₪
+                            </span>
+                        </div>
+                        
+                        <!-- Discount Image -->
+                        <div class="relative h-48 overflow-hidden">
+                            <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
+                                <i class="fas fa-percent text-5xl text-primary/60"></i>
+                            </div>
+                            
+                            <!-- Countdown Label -->
+                            <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs px-3 py-1 rounded-full shadow-sm flex items-center">
+                                <i class="far fa-calendar-alt ml-1 text-primary"></i>
+                                <span>حتى 30/07/2023</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">خصم على الحقائب</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">خصم ثابت على جميع الحقائب بقيمة 50 شيكل</p>
+                            
+                            <a href="#" class="group inline-flex items-center justify-center w-full bg-primary hover:bg-secondary text-white py-2.5 px-4 rounded-md transition duration-300 shadow-md">
+                                <span class="mr-1">تسوقي الآن</span>
+                                <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="relative bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 group">
+                        <!-- Discount Badge -->
+                        <div class="absolute -top-6 -right-6 bg-red-500 text-white w-20 h-20 flex items-center justify-center rotate-45 z-10 shadow-md">
+                            <span class="text-xl font-bold translate-y-8 translate-x-2">
+                                20%
+                            </span>
+                        </div>
+                        
+                        <!-- Discount Image -->
+                        <div class="relative h-48 overflow-hidden">
+                            <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
+                                <i class="fas fa-percent text-5xl text-primary/60"></i>
+                            </div>
+                            
+                            <!-- Countdown Label -->
+                            <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs px-3 py-1 rounded-full shadow-sm flex items-center">
+                                <i class="far fa-calendar-alt ml-1 text-primary"></i>
+                                <span>حتى 15/08/2023</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">خصم على الأحذية</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">خصم حصري على تشكيلة الأحذية الجديدة</p>
+                            
+                            <a href="#" class="group inline-flex items-center justify-center w-full bg-primary hover:bg-secondary text-white py-2.5 px-4 rounded-md transition duration-300 shadow-md">
+                                <span class="mr-1">تسوقي الآن</span>
+                                <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="py-12 bg-accent">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center transition duration-300 hover:shadow-xl transform hover:-translate-y-1">
+                    <div class="text-primary text-4xl mb-4">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">توصيل سريع</h3>
+                    <p class="text-gray-600">توصيل سريع لجميع المناطق خلال 3-5 أيام عمل</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md text-center transition duration-300 hover:shadow-xl transform hover:-translate-y-1">
+                    <div class="text-primary text-4xl mb-4">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">إرجاع مجاني</h3>
+                    <p class="text-gray-600">إمكانية إرجاع المنتجات خلال 14 يوم من الشراء</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md text-center transition duration-300 hover:shadow-xl transform hover:-translate-y-1">
+                    <div class="text-primary text-4xl mb-4">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">دفع آمن</h3>
+                    <p class="text-gray-600">طرق دفع متعددة وآمنة لضمان راحتك وخصوصيتك</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Hero Slider Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const sliderContainer = document.querySelector('.slider-container');
+        const sliderItems = document.querySelectorAll('.slider-item');
+        const sliderDots = document.querySelectorAll('.slider-dot');
+        let currentIndex = 0;
+        let isAnimating = false;
+        
+        // Hide all items except first
+        sliderItems.forEach((item, index) => {
+            if (index !== 0) {
+                item.style.display = 'none';
+                item.style.opacity = '0';
+            } else {
+                item.style.opacity = '1';
+            }
+        });
+        
+        // Add transition styles for smooth fade in/out
+        sliderItems.forEach(item => {
+            item.style.transition = 'opacity 150ms ease-in-out';
+        });
+        
+        // Slider Automatic
+        setInterval(() => {
+            nextSlide();
+        }, 5000);
+        
+        // Slider Controls
+        sliderDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                if (isAnimating) return;
+                
+                const index = parseInt(dot.getAttribute('data-index'));
+                
+                if (index === currentIndex) return;
+                
+                showSlide(index);
+            });
+        });
+        
+        function showSlide(index) {
+            isAnimating = true;
+            
+            // Show new slide first (but invisible)
+            sliderItems[index].style.display = 'block';
+            sliderItems[index].style.opacity = '0';
+            
+            // Update slider dots
+            sliderDots[currentIndex].classList.remove('active', 'bg-primary');
+            sliderDots[currentIndex].classList.add('bg-gray-300');
+            
+            // Fade out current slide and fade in new slide simultaneously
+            requestAnimationFrame(() => {
+                sliderItems[currentIndex].style.opacity = '0';
+                sliderItems[index].style.opacity = '1';
+                
+                // Update dots
+                sliderDots[index].classList.remove('bg-gray-300');
+                sliderDots[index].classList.add('active', 'bg-primary');
+                
+                // Hide old slide after transition
+                setTimeout(() => {
+                    sliderItems[currentIndex].style.display = 'none';
+                    currentIndex = index;
+                    isAnimating = false;
+                }, 150);
+            });
+        }
+        
+        function nextSlide() {
+            if (isAnimating) return;
+            
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= sliderItems.length) {
+                nextIndex = 0;
+            }
+            showSlide(nextIndex);
+        }
+    });
+    
+    // نافذة التنبيه للمنتجات النائبة
+    function showNotification(message, type) {
+        if (typeof showToast === 'function') {
+            showToast(message, type || 'info');
+        } else {
+            alert(message);
+        }
+    }
+    
+    // وظيفة المفضلة - تم إعادة كتابتها بالكامل
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('تهيئة وظيفة زر المفضلة - إصدار جديد');
+        
+        // تحديث حالة أزرار المفضلة الموجودة عند التحميل
+        updateAllWishlistButtons();
+        
+        // إضافة مستمع أحداث لكل زر مفضلة
+        document.querySelectorAll('.wishlist-toggle-btn').forEach(btn => {
+            console.log('تم العثور على زر مفضلة:', btn);
+            
+            // إزالة أي مستمعي أحداث سابقة لتجنب التكرار
+            btn.removeEventListener('click', handleWishlistToggle);
+            
+            // إضافة مستمع أحداث جديد
+            btn.addEventListener('click', handleWishlistToggle);
+        });
+        
+        // معالج حدث النقر على زر المفضلة
+        function handleWishlistToggle(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const btn = this;
+            const productId = btn.getAttribute('data-product');
+            
+            console.log('تم النقر على زر المفضلة للمنتج:', productId);
+            
+            if (!productId) {
+                console.error('لا يوجد معرف منتج للزر');
+                return;
+            }
+            
+            // حفظ المحتوى الأصلي
+            const originalHTML = btn.innerHTML;
+            
+            // عرض مؤشر التحميل
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            
+            // استدعاء واجهة برمجة التطبيقات
+            toggleWishlistAPI(productId)
+                .then(data => {
+                    console.log('استجابة API:', data);
+                    if (data.success) {
+                        const isInWishlist = data.status === 'added';
+                        updateButtonState(btn, isInWishlist);
+                        showNotification(
+                            isInWishlist ? 'تمت إضافة المنتج إلى المفضلة' : 'تمت إزالة المنتج من المفضلة',
+                            isInWishlist ? 'success' : 'info'
+                        );
+                        
+                        // تحديث عداد المفضلة في القائمة
+                        updateWishlistCounter(data.wishlist_count || 0);
+                    } else {
+                        console.error('خطأ في API المفضلة:', data.error);
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                        showNotification('حدث خطأ. يرجى المحاولة مرة أخرى', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في تبديل المفضلة:', error);
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    showNotification('حدث خطأ. يرجى المحاولة مرة أخرى', 'error');
+                });
+        }
+        
+        // استدعاء API لتبديل حالة المفضلة
+        function toggleWishlistAPI(productId) {
+            const csrfToken = getCsrfToken();
+            console.log('إرسال طلب API مع معرف المنتج:', productId);
+            console.log('CSRF Token:', csrfToken);
+            
+            return fetch('/toggle-wishlist/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => {
+                console.log('استجابة الخادم:', response.status);
+                if (!response.ok) {
+                    throw new Error('استجابة الخادم غير ناجحة: ' + response.status);
+                }
+                return response.json();
+            });
+        }
+        
+        // تحديث حالة الزر بناءً على حالة المفضلة
+        function updateButtonState(button, isInWishlist) {
+            console.log('تحديث حالة الزر:', isInWishlist ? 'في المفضلة' : 'غير مفضل');
+            
+            // إعادة تفعيل الزر
+            button.disabled = false;
+            
+            // تحديث أيقونة القلب
+            const icon = isInWishlist ? 'fas' : 'far';
+            button.innerHTML = `<i class="${icon} fa-heart"></i>`;
+            
+            // تطبيق الأنماط المناسبة
+            if (isInWishlist) {
+                button.classList.add('bg-red-500', 'text-white');
+                button.classList.remove('text-red-500', 'bg-white/80');
+            } else {
+                button.classList.remove('bg-red-500', 'text-white');
+                button.classList.add('text-red-500', 'bg-white/80');
+            }
+        }
+        
+        // تحديث جميع أزرار المفضلة استنادًا إلى البيانات المخزنة مسبقًا
+        function updateAllWishlistButtons() {
+            console.log('تحديث جميع أزرار المفضلة');
+            
+            // استرجاع قائمة معرفات المنتجات المفضلة من عنصر HTML مخفي أو من الخادم
+            fetch('/api/wishlist-items/', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('تم استلام بيانات المفضلة:', data);
+                
+                const wishlistItems = data.wishlist_items || [];
+                
+                // تحديث كل زر
+                document.querySelectorAll('.wishlist-toggle-btn').forEach(btn => {
+                    const productId = btn.getAttribute('data-product');
+                    const isInWishlist = wishlistItems.includes(parseInt(productId));
+                    updateButtonState(btn, isInWishlist);
+                });
+                
+                // تحديث العداد
+                updateWishlistCounter(wishlistItems.length);
+            })
+            .catch(error => {
+                console.error('خطأ في استرجاع بيانات المفضلة:', error);
+            });
+        }
+        
+        // تحديث عداد المفضلة في القائمة
+        function updateWishlistCounter(count) {
+            const counters = document.querySelectorAll('.wishlist-count');
+            counters.forEach(counter => {
+                counter.textContent = count;
+                
+                // إظهار أو إخفاء العداد حسب القيمة
+                if (count > 0) {
+                    counter.classList.remove('hidden');
+                } else {
+                    counter.classList.add('hidden');
+                }
+            });
+        }
+        
+        // الحصول على رمز CSRF
+        function getCsrfToken() {
+            const cookieValue = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1];
+                
+            if (!cookieValue) {
+                console.error('لم يتم العثور على رمز CSRF!');
+            }
+            
+            return cookieValue;
+        }
+    });
+</script>
+
+<!-- Quick View Modal Container -->
+<div id="quick-view-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div id="quick-view-content" class="relative w-full max-w-4xl">
+            <!-- Content will be loaded here via AJAX -->
+            <div class="flex justify-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick View JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Quick View buttons
+        const quickViewButtons = document.querySelectorAll('.quick-view-btn');
+        const quickViewModal = document.getElementById('quick-view-modal');
+        const quickViewContent = document.getElementById('quick-view-content');
+        
+        quickViewButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const productId = this.getAttribute('data-product');
+                
+                // Show modal and loading spinner
+                quickViewModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                
+                // Fetch product data
+                fetch(`{% url 'boutiqe:quick_view' product_id=0 %}`.replace('0', productId), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    quickViewContent.innerHTML = html;
+                    
+                    // Setup close button
+                    const closeBtn = quickViewContent.querySelector('.close-quick-view');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', closeQuickView);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading quick view:', error);
+                    quickViewContent.innerHTML = `
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <div class="flex flex-col items-center text-center">
+                                <div class="text-red-500 mb-4 text-6xl">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2">المنتج غير متوفر</h3>
+                                <p class="text-gray-600 mb-4">عذراً، المنتج الذي تبحث عنه غير متوفر أو قد تم حذفه</p>
+                                <button class="close-quick-view bg-primary hover:bg-secondary text-white px-6 py-2 rounded-lg transition duration-300">إغلاق</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const closeBtn = quickViewContent.querySelector('.close-quick-view');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', closeQuickView);
+                    }
+                });
+            });
+        });
+        
+        // Close when clicking outside the content
+        quickViewModal.addEventListener('click', function(e) {
+            if (e.target === quickViewModal) {
+                closeQuickView();
+            }
+        });
+        
+        // Close with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !quickViewModal.classList.contains('hidden')) {
+                closeQuickView();
+            }
+        });
+        
+        function closeQuickView() {
+            quickViewModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+    });
+</script>
+
+<!-- Wishlist JS -->
+<script>
+    // تم نقل وظائف المفضلة إلى ملف خارجي - راجع wishlist.js
+</script>
+{% endblock %} 

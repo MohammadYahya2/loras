@@ -1,0 +1,343 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}الملف الشخصي - بوتيك لوراس{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-primary">الملف الشخصي</span>
+                </li>
+            </ol>
+        </nav>
+        
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+            <div class="md:flex">
+                <div class="p-8 bg-gradient-to-r from-primary to-secondary text-white md:w-1/3">
+                    <div class="text-center">
+                        <div class="w-32 h-32 mx-auto bg-white rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-lg overflow-hidden">
+                            {% if user.profile.profile_image %}
+                                <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <i class="fas fa-user-circle text-primary text-6xl"></i>
+                            {% endif %}
+                        </div>
+                        <h1 class="text-2xl font-bold">{{ user.get_full_name }}</h1>
+                        <p class="text-white text-opacity-90">{{ user.username }}</p>
+                        <p class="text-white text-opacity-80 mt-2">
+                            <i class="fas fa-map-marker-alt ml-1"></i>{{ user.profile.city|default:"" }} {{ user.profile.country }}
+                        </p>
+                        
+                        <div class="mt-6">
+                            <button id="edit-profile-btn" class="bg-white text-primary hover:bg-gray-100 font-bold py-2 px-4 rounded-md transition duration-300 w-full">
+                                <i class="fas fa-edit ml-2"></i>تعديل الملف الشخصي
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-8 md:w-2/3">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">معلومات الحساب</h2>
+                        <span class="bg-green-100 text-green-600 text-xs font-medium py-1 px-2 rounded-full">
+                            <i class="fas fa-check-circle ml-1"></i>نشط
+                        </span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">الاسم الكامل</h3>
+                            <p class="text-gray-800 font-medium">{{ user.get_full_name }}</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">البريد الإلكتروني</h3>
+                            <p class="text-gray-800 font-medium">{{ user.email }}</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">رقم الهاتف</h3>
+                            <p class="text-gray-800 font-medium">{{ user.profile.phone|default:"لم يتم تحديده" }}</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">تاريخ الانضمام</h3>
+                            <p class="text-gray-800 font-medium">{{ user.date_joined|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-6 border-gray-200">
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">العناوين</h2>
+                        <button class="text-primary hover:text-secondary font-medium text-sm">
+                            <i class="fas fa-plus-circle ml-1"></i>إضافة عنوان جديد
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-4">
+                        <div class="flex justify-between">
+                            <div>
+                                <div class="flex items-center mb-2">
+                                    <span class="font-bold text-gray-800 ml-2">العنوان الرئيسي</span>
+                                    <span class="bg-primary bg-opacity-20 text-primary text-xs px-2 py-0.5 rounded">افتراضي</span>
+                                </div>
+                                <p class="text-gray-600">{{ user.profile.address|default:"لم يتم تحديد العنوان بعد" }}</p>
+                                <p class="text-gray-600">{{ user.profile.city|default:"" }}, {{ user.profile.country }}</p>
+                                <p class="text-gray-600">رقم الهاتف: {{ user.profile.phone|default:"غير متوفر" }}</p>
+                            </div>
+                            <div class="flex space-x-2 space-x-reverse">
+                                <button class="text-gray-500 hover:text-primary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-red-500">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Tabs -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <a href="#" class="tab-active text-center py-4 px-6 border-b-2 border-primary text-primary font-medium flex-1">نشاط الحساب</a>
+                    <a href="{% url 'boutiqe:orders' %}" class="text-center py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium flex-1">طلباتي</a>
+                    <a href="#" class="text-center py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium flex-1">المفضلة</a>
+                    <a href="#" class="text-center py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium flex-1">المراجعات</a>
+                </nav>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">آخر النشاطات</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-lg p-3 ml-4">
+                                <i class="fas fa-heart text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium">أضفت منتج إلى المفضلة</p>
+                                <p class="text-gray-600 text-sm">فستان سهرة مطرز باللون الأسود</p>
+                                <p class="text-gray-400 text-xs mt-1">منذ 3 ساعات</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 text-blue-500 rounded-lg p-3 ml-4">
+                                <i class="fas fa-shopping-bag text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium">قمت بشراء منتج</p>
+                                <p class="text-gray-600 text-sm">بلوزة كاجوال بأكمام طويلة</p>
+                                <p class="text-gray-400 text-xs mt-1">منذ يومين</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-green-100 text-green-500 rounded-lg p-3 ml-4">
+                                <i class="fas fa-star text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium">قمت بتقييم منتج</p>
+                                <p class="text-gray-600 text-sm">حقيبة يد نسائية فاخرة (5 نجوم)</p>
+                                <p class="text-gray-400 text-xs mt-1">منذ أسبوع</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-purple-100 text-purple-500 rounded-lg p-3 ml-4">
+                                <i class="fas fa-user-edit text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium">قمت بتحديث معلومات الحساب</p>
+                                <p class="text-gray-600 text-sm">تم تغيير رقم الهاتف والعنوان</p>
+                                <p class="text-gray-400 text-xs mt-1">منذ أسبوعين</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button class="text-primary hover:text-secondary font-medium">
+                        عرض المزيد من النشاطات
+                        <i class="fas fa-chevron-down mr-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Edit Modal -->
+    <div id="edit-profile-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-6 border-b">
+                    <h3 class="text-lg font-bold text-gray-800">تعديل الملف الشخصي</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <form method="post" action="{% url 'boutiqe:profile' %}" class="space-y-4" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="text-center mb-4">
+                            <div class="w-24 h-24 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4 relative overflow-hidden profile-image-preview">
+                                {% if user.profile.profile_image %}
+                                    <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <i class="fas fa-user-circle text-gray-400 text-5xl"></i>
+                                {% endif %}
+                                <input type="file" name="profile_image" id="profile_image_upload" class="hidden absolute inset-0 opacity-0 cursor-pointer">
+                            </div>
+                            <label for="profile_image_upload" class="text-primary hover:text-secondary text-sm font-medium cursor-pointer">تغيير الصورة</label>
+                        </div>
+                        
+                        {% if u_form.non_field_errors or p_form.non_field_errors %}
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                {{ u_form.non_field_errors }}
+                                {{ p_form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="{{ u_form.first_name.id_for_label }}" class="block text-gray-700 font-medium mb-2">الاسم الأول</label>
+                                {{ u_form.first_name }}
+                                {% if u_form.first_name.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ u_form.first_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ u_form.last_name.id_for_label }}" class="block text-gray-700 font-medium mb-2">الاسم الأخير</label>
+                                {{ u_form.last_name }}
+                                {% if u_form.last_name.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ u_form.last_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="{{ u_form.username.id_for_label }}" class="block text-gray-700 font-medium mb-2">اسم المستخدم</label>
+                            {{ u_form.username }}
+                            {% if u_form.username.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ u_form.username.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ u_form.email.id_for_label }}" class="block text-gray-700 font-medium mb-2">البريد الإلكتروني <span class="text-xs text-gray-500">(غير قابل للتعديل)</span></label>
+                            {{ u_form.email }}
+                            {% if u_form.email.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ u_form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ p_form.phone.id_for_label }}" class="block text-gray-700 font-medium mb-2">رقم الهاتف</label>
+                            {{ p_form.phone }}
+                            {% if p_form.phone.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ p_form.phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ p_form.address.id_for_label }}" class="block text-gray-700 font-medium mb-2">العنوان</label>
+                            {{ p_form.address }}
+                            {% if p_form.address.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ p_form.address.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="{{ p_form.city.id_for_label }}" class="block text-gray-700 font-medium mb-2">المدينة</label>
+                                {{ p_form.city }}
+                                {% if p_form.city.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ p_form.city.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ p_form.country.id_for_label }}" class="block text-gray-700 font-medium mb-2">الدولة</label>
+                                {{ p_form.country }}
+                                {% if p_form.country.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ p_form.country.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t">
+                            <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-md transition duration-300">
+                                حفظ التغييرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Profile Edit Modal
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        const editProfileModal = document.getElementById('edit-profile-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        
+        if (editProfileBtn && editProfileModal) {
+            editProfileBtn.addEventListener('click', function() {
+                editProfileModal.classList.remove('hidden');
+            });
+            
+            closeModalBtn.addEventListener('click', function() {
+                editProfileModal.classList.add('hidden');
+            });
+            
+            // Close modal when clicking outside
+            editProfileModal.addEventListener('click', function(e) {
+                if (e.target === editProfileModal.querySelector('.absolute.inset-0.bg-black.bg-opacity-50')) {
+                    editProfileModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Profile Image Preview
+        const profileImageInput = document.getElementById('profile_image_upload');
+        if (profileImageInput) {
+            profileImageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.querySelector('.profile-image-preview');
+                        if (preview) {
+                            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">`;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

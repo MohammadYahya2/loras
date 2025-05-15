@@ -1,0 +1,637 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - بوتيك لوراس{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm mb-6" aria-label="Breadcrumb">
+        <ol class="list-none p-0 inline-flex">
+            <li class="flex items-center">
+                <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 5l7 7-7 7" />
+                </svg>
+            </li>
+            <li class="flex items-center">
+                <a href="{% url 'boutiqe:product_list_by_category' category_slug=product.category.slug %}" class="text-gray-500 hover:text-primary transition">{{ product.category.name }}</a>
+                <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 5l7 7-7 7" />
+                </svg>
+            </li>
+            <li class="flex items-center">
+                <span class="text-primary">{{ product.name }}</span>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="md:flex">
+            <!-- صور المنتج -->
+            <div class="md:w-1/2 p-6">
+                <div class="product-images">
+                    <div class="main-image mb-4">
+                        {% if product.get_main_image %}
+                            <img src="{% url 'boutiqe:serve_media' product.get_main_image.image.name %}" alt="{{ product.name }}" class="w-full h-auto rounded-lg">
+                        {% else %}
+                            <div class="w-full h-96 bg-gray-200 flex items-center justify-center rounded-lg">
+                                <p class="text-gray-400">لا توجد صورة</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="thumbnail-images flex space-x-2 space-x-reverse rtl:space-x-reverse">
+                        {% for image in product.images.all %}
+                            <div class="w-24 h-24 border border-gray-200 rounded-md overflow-hidden cursor-pointer product-thumbnail" data-image="{% url 'boutiqe:serve_media' image.image.name %}">
+                                <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- تفاصيل المنتج -->
+            <div class="md:w-1/2 p-6 md:border-r md:border-gray-100">
+                <div class="mb-4">
+                    {% if product.is_new %}
+                        <span class="bg-primary text-white text-xs px-2 py-1 rounded-full mr-2">جديد</span>
+                    {% endif %}
+                    {% if product.is_sale %}
+                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">عرض خاص</span>
+                    {% endif %}
+                </div>
+
+                <!-- Product name and ratings -->
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ product.name }}</h1>
+                    
+                    <!-- Rating stars -->
+                    <div class="flex items-center mb-2">
+                        <div class="flex text-yellow-400">
+                            {% with avg_rating=product.get_average_rating %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avg_rating|floatformat:"0" %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif forloop.counter <= avg_rating|add:"0.5"|floatformat:"0" %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <span class="text-gray-500 text-sm mr-1">({{ product.get_rating_count }} مراجعة)</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {% if product.discount_price %}
+                        <span class="text-2xl font-bold text-primary">{{ product.discount_price }} ﷼</span>
+                        <span class="text-lg text-gray-400 line-through mr-2">{{ product.price }} ﷼</span>
+                        <span class="bg-red-100 text-red-600 text-sm px-2 py-1 rounded">{{ product.get_discount_percent }}% خصم</span>
+                    {% else %}
+                        <span class="text-2xl font-bold text-primary">{{ product.price }} ﷼</span>
+                    {% endif %}
+                </div>
+
+                <div class="border-t border-b border-gray-200 py-4 mb-6">
+                    <div class="prose prose-sm text-gray-600">
+                        <p>{{ product.description }}</p>
+                    </div>
+                </div>
+
+                <!-- الألوان -->
+                {% if product.colors.exists %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">اختر اللون:</h3>
+                    <div class="flex space-x-2 space-x-reverse rtl:space-x-reverse">
+                        {% for color in product.colors.all %}
+                        <label class="color-option cursor-pointer">
+                            <input type="radio" name="color" value="{{ color.id }}" class="hidden">
+                            <span class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary block" style="background-color: {{ color.code }}"></span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- المقاسات -->
+                {% if product.sizes.exists %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">اختر المقاس:</h3>
+                    <div class="flex flex-wrap space-x-2 space-x-reverse rtl:space-x-reverse">
+                        {% for size in product.sizes.all %}
+                        <label class="size-option cursor-pointer">
+                            <input type="radio" name="size" value="{{ size.id }}" class="hidden">
+                            <span class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium hover:border-primary">{{ size.name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- الكمية -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">الكمية:</h3>
+                    <div class="flex items-center">
+                        <button class="quantity-btn minus bg-gray-200 px-3 py-1 rounded-r-md">-</button>
+                        <input type="number" class="quantity-input w-16 text-center border-t border-b border-gray-300 py-1" value="1" min="1" max="{{ product.stock_quantity }}">
+                        <button class="quantity-btn plus bg-gray-200 px-3 py-1 rounded-l-md">+</button>
+                    </div>
+                </div>
+
+                <!-- أزرار الإجراءات -->
+                <div class="flex space-x-4 space-x-reverse rtl:space-x-reverse mb-6">
+                    <form method="post" action="{% url 'boutiqe:add_to_cart_by_id' product.id %}" class="flex-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="color" id="selected_color" value="">
+                        <input type="hidden" name="size" id="selected_size" value="">
+                        <input type="hidden" name="quantity" id="selected_quantity" value="1">
+                        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-3 px-6 rounded-md transition">
+                            <i class="fas fa-shopping-bag ml-2"></i>إضافة إلى السلة
+                        </button>
+                    </form>
+                    <button type="button" id="add-to-wishlist" data-product="{{ product.id }}" class="wishlist-btn flex items-center justify-center border border-gray-300 rounded-md w-12 h-12 hover:bg-gray-100 transition">
+                        <i class="{% if is_in_wishlist %}fas{% else %}far{% endif %} fa-heart text-xl {% if is_in_wishlist %}text-red-500{% endif %}"></i>
+                    </button>
+                    <button type="button" class="share-btn flex items-center justify-center border border-gray-300 rounded-md w-12 h-12 hover:bg-gray-100 transition">
+                        <i class="fas fa-share-alt text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- معلومات إضافية -->
+                <div class="text-sm text-gray-600">
+                    {% if product.sku %}
+                    <p class="mb-1"><span class="font-medium ml-2">رمز المنتج:</span> {{ product.sku }}</p>
+                    {% endif %}
+                    <p class="mb-1"><span class="font-medium ml-2">التوفر:</span> 
+                        {% if product.in_stock %}
+                        <span class="text-green-600">متوفر</span>
+                        {% else %}
+                        <span class="text-red-600">غير متوفر</span>
+                        {% endif %}
+                    </p>
+                    <p><span class="font-medium ml-2">الفئة:</span> {{ product.category.name }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويبات المعلومات -->
+        <div class="border-t border-gray-200">
+            <div class="flex border-b">
+                <button class="tab-btn active py-3 px-6 font-medium text-primary border-b-2 border-primary" data-tab="description">الوصف</button>
+                <button class="tab-btn py-3 px-6 font-medium text-gray-500" data-tab="specifications">المواصفات</button>
+                <button class="tab-btn py-3 px-6 font-medium text-gray-500" data-tab="reviews">التقييمات ({{ product.get_rating_count }})</button>
+            </div>
+            <div class="p-6">
+                <div class="tab-content active" id="description">
+                    <div class="prose max-w-none">
+                        <p>{{ product.description }}</p>
+                    </div>
+                </div>
+                <div class="tab-content hidden" id="specifications">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">المادة</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">جلد طبيعي</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">الأبعاد</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">25 سم × 15 سم × 8 سم</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">الوزن</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">500 جرام</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">بلد المنشأ</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">المملكة العربية السعودية</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-content hidden" id="reviews">
+                    <div class="space-y-6">
+                        {% if user.is_authenticated %}
+                        <div class="mb-8 border-b border-gray-200 pb-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">إضافة تقييم</h3>
+                            <form method="post" action="{% url 'boutiqe:submit_rating' product_id=product.id %}">
+                                {% csrf_token %}
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">التقييم:</label>
+                                    <div class="rating-select flex text-2xl space-x-2 space-x-reverse rtl:space-x-reverse text-gray-400">
+                                        <input type="radio" name="rating" value="5" id="rating-5" class="hidden">
+                                        <label for="rating-5" class="cursor-pointer star-label" data-value="5">
+                                            <i class="far fa-star"></i>
+                                        </label>
+                                        
+                                        <input type="radio" name="rating" value="4" id="rating-4" class="hidden">
+                                        <label for="rating-4" class="cursor-pointer star-label" data-value="4">
+                                            <i class="far fa-star"></i>
+                                        </label>
+                                        
+                                        <input type="radio" name="rating" value="3" id="rating-3" class="hidden">
+                                        <label for="rating-3" class="cursor-pointer star-label" data-value="3">
+                                            <i class="far fa-star"></i>
+                                        </label>
+                                        
+                                        <input type="radio" name="rating" value="2" id="rating-2" class="hidden">
+                                        <label for="rating-2" class="cursor-pointer star-label" data-value="2">
+                                            <i class="far fa-star"></i>
+                                        </label>
+                                        
+                                        <input type="radio" name="rating" value="1" id="rating-1" class="hidden">
+                                        <label for="rating-1" class="cursor-pointer star-label" data-value="1">
+                                            <i class="far fa-star"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="comment" class="block text-gray-700 text-sm font-bold mb-2">التعليق:</label>
+                                    <textarea id="comment" name="comment" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-primary" placeholder="اكتب تعليقك عن المنتج هنا..."></textarea>
+                                </div>
+                                <button type="submit" class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md transition">إرسال التقييم</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product_ratings %}
+                            {% for rating in product_ratings %}
+                            <div class="flex items-start border-b border-gray-200 pb-6">
+                                <div class="flex-shrink-0 ml-4">
+                                    <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center mb-1">
+                                        <h3 class="text-sm font-medium text-gray-900">{{ rating.user.username }}</h3>
+                                        <span class="text-gray-400 text-xs mr-2">{{ rating.created_at|date:"d M Y" }}</span>
+                                    </div>
+                                    <div class="flex text-yellow-400 mb-2 text-sm">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating.rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% if rating.comment %}
+                                    <p class="text-gray-600 text-sm">{{ rating.comment }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-gray-500 text-center py-6">لا توجد تقييمات بعد. كن أول من يقيم هذا المنتج!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- المنتجات ذات الصلة -->
+    <section class="py-10">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">منتجات ذات صلة</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in related_products %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden product-card">
+                    <div class="relative product-image h-60">
+                        {% if product.get_main_image %}
+                            <img src="{{ product.get_main_image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <p class="text-gray-400">لا توجد صورة</p>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- بطاقات المنتج -->
+                        <div class="absolute top-2 right-2 space-y-2">
+                            {% if product.is_new %}
+                                <span class="bg-primary text-white text-xs px-2 py-1 rounded-full block">جديد</span>
+                            {% endif %}
+                            {% if product.is_sale %}
+                                <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full block">عرض خاص</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- أزرار المنتج -->
+                        <div class="absolute top-2 left-2 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="bg-white rounded-full w-8 h-8 flex items-center justify-center text-gray-700 hover:text-primary transition shadow-sm quick-view-btn" data-product="{{ product.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="bg-white rounded-full w-8 h-8 flex items-center justify-center text-gray-700 hover:text-primary transition shadow-sm wishlist-toggle-btn" data-product="{{ product.id }}">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <h3 class="text-gray-800 font-medium mb-2"><a href="{% url 'boutiqe:product_detail' slug=product.slug %}" class="hover:text-primary transition">{{ product.name }}</a></h3>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                {% if product.discount_price %}
+                                    <span class="text-primary font-bold">{{ product.discount_price }} ﷼</span>
+                                    <span class="text-gray-400 text-sm line-through mr-1">{{ product.price }} ﷼</span>
+                                {% else %}
+                                    <span class="text-primary font-bold">{{ product.price }} ﷼</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex text-yellow-400 text-xs">
+                                {% with avg_rating=product.get_average_rating %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= avg_rating|floatformat:"0" %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter <= avg_rating|add:"0.5"|floatformat:"0" %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'boutiqe:add_to_cart_by_id' product.id %}" class="mt-4 block text-center bg-gray-100 hover:bg-primary hover:text-white transition py-2 rounded-md text-sm">
+                            <i class="fas fa-shopping-bag ml-1"></i>إضافة إلى السلة
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تبديل المفضلة
+        const wishlistBtn = document.getElementById('add-to-wishlist');
+        if (wishlistBtn) {
+            wishlistBtn.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product');
+                
+                fetch('{% url "boutiqe:toggle_wishlist" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const icon = wishlistBtn.querySelector('i');
+                        if (data.status === 'added') {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas', 'text-red-500');
+                        } else {
+                            icon.classList.remove('fas', 'text-red-500');
+                            icon.classList.add('far');
+                        }
+                        
+                        // تحديث عداد المفضلة إذا كان موجودا
+                        const wishlistCounter = document.querySelector('.wishlist-count');
+                        if (wishlistCounter) {
+                            wishlistCounter.textContent = data.wishlist_count;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+        
+        // تبديل الصور
+        const thumbnails = document.querySelectorAll('.product-thumbnail');
+        const mainImage = document.querySelector('.main-image img');
+        
+        thumbnails.forEach(thumbnail => {
+            thumbnail.addEventListener('click', function() {
+                const imgSrc = this.getAttribute('data-image');
+                mainImage.src = imgSrc;
+            });
+        });
+        
+        // التبويبات
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // إزالة الحالة النشطة من جميع الأزرار والمحتويات
+                tabButtons.forEach(btn => btn.classList.remove('active', 'text-primary', 'border-b-2', 'border-primary'));
+                tabButtons.forEach(btn => btn.classList.add('text-gray-500'));
+                tabContents.forEach(content => content.classList.add('hidden'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // إضافة الحالة النشطة للزر والمحتوى المحدد
+                this.classList.add('active', 'text-primary', 'border-b-2', 'border-primary');
+                this.classList.remove('text-gray-500');
+                document.getElementById(tabName).classList.add('active');
+                document.getElementById(tabName).classList.remove('hidden');
+            });
+        });
+        
+        // زيادة ونقصان الكمية
+        const quantityInput = document.querySelector('.quantity-input');
+        const plusBtn = document.querySelector('.quantity-btn.plus');
+        const minusBtn = document.querySelector('.quantity-btn.minus');
+        const selectedQuantityInput = document.getElementById('selected_quantity');
+        
+        plusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(quantityInput.value);
+            let maxValue = parseInt(quantityInput.getAttribute('max')) || 100;
+            
+            if (currentValue < maxValue) {
+                quantityInput.value = currentValue + 1;
+                selectedQuantityInput.value = currentValue + 1;
+            }
+        });
+        
+        minusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(quantityInput.value);
+            
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+                selectedQuantityInput.value = currentValue - 1;
+            }
+        });
+        
+        quantityInput.addEventListener('change', function() {
+            selectedQuantityInput.value = this.value;
+        });
+        
+        // اختيار اللون والمقاس
+        const colorOptions = document.querySelectorAll('.color-option input');
+        const sizeOptions = document.querySelectorAll('.size-option input');
+        const selectedColorInput = document.getElementById('selected_color');
+        const selectedSizeInput = document.getElementById('selected_size');
+        
+        colorOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                // إزالة الحدود من جميع الخيارات
+                colorOptions.forEach(opt => {
+                    opt.parentElement.querySelector('span').classList.remove('border-primary');
+                    opt.parentElement.querySelector('span').classList.add('border-transparent');
+                });
+                
+                // إضافة حدود للخيار المحدد
+                this.parentElement.querySelector('span').classList.remove('border-transparent');
+                this.parentElement.querySelector('span').classList.add('border-primary');
+                
+                // تحديث قيمة الحقل المخفي
+                selectedColorInput.value = this.value;
+            });
+        });
+        
+        sizeOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                // إزالة الحدود من جميع الخيارات
+                sizeOptions.forEach(opt => {
+                    opt.parentElement.querySelector('span').classList.remove('border-primary', 'bg-primary', 'text-white');
+                    opt.parentElement.querySelector('span').classList.add('border-gray-300');
+                });
+                
+                // إضافة حدود للخيار المحدد
+                this.parentElement.querySelector('span').classList.remove('border-gray-300');
+                this.parentElement.querySelector('span').classList.add('border-primary', 'bg-primary', 'text-white');
+                
+                // تحديث قيمة الحقل المخفي
+                selectedSizeInput.value = this.value;
+            });
+        });
+        
+        // الرؤية السريعة
+        const quickViewButtons = document.querySelectorAll('.quick-view-btn');
+        
+        quickViewButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product');
+                
+                fetch(`/quick-view/${productId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // إضافة النافذة المنبثقة للرؤية السريعة
+                    const quickViewContainer = document.createElement('div');
+                    quickViewContainer.id = 'quick-view-container';
+                    quickViewContainer.className = 'fixed inset-0 z-50 flex items-center justify-center';
+                    quickViewContainer.innerHTML = html;
+                    document.body.appendChild(quickViewContainer);
+                    
+                    // إضافة معالج لإغلاق النافذة المنبثقة
+                    const closeBtn = quickViewContainer.querySelector('.close-quick-view');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function() {
+                            quickViewContainer.remove();
+                        });
+                    }
+                    
+                    // إغلاق النافذة المنبثقة عند النقر خارجها
+                    quickViewContainer.addEventListener('click', function(e) {
+                        if (e.target === quickViewContainer) {
+                            quickViewContainer.remove();
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+        
+        // دالة للحصول على قيمة ملف تعريف الارتباط (CSRF)
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Star rating functionality
+        const starLabels = document.querySelectorAll('.star-label');
+        const ratingInputs = document.querySelectorAll('input[name="rating"]');
+        
+        starLabels.forEach(label => {
+            label.addEventListener('click', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                
+                // Update the radio input
+                document.getElementById(`rating-${value}`).checked = true;
+                
+                // Update the star visuals
+                starLabels.forEach(star => {
+                    const starValue = parseInt(star.getAttribute('data-value'));
+                    const icon = star.querySelector('i');
+                    
+                    if (starValue <= value) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas', 'text-yellow-400');
+                    } else {
+                        icon.classList.remove('fas', 'text-yellow-400');
+                        icon.classList.add('far');
+                    }
+                });
+            });
+            
+            // Hover effect
+            label.addEventListener('mouseenter', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                
+                starLabels.forEach(star => {
+                    const starValue = parseInt(star.getAttribute('data-value'));
+                    const icon = star.querySelector('i');
+                    
+                    if (starValue <= value) {
+                        icon.classList.add('text-yellow-400');
+                    }
+                });
+            });
+            
+            label.addEventListener('mouseleave', function() {
+                // On mouse leave, reset to the selected state
+                const selectedRating = document.querySelector('input[name="rating"]:checked');
+                const selectedValue = selectedRating ? parseInt(selectedRating.value) : 0;
+                
+                starLabels.forEach(star => {
+                    const starValue = parseInt(star.getAttribute('data-value'));
+                    const icon = star.querySelector('i');
+                    
+                    if (!selectedRating || starValue > selectedValue) {
+                        icon.classList.remove('fas', 'text-yellow-400');
+                        icon.classList.add('far');
+                    } else {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas', 'text-yellow-400');
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

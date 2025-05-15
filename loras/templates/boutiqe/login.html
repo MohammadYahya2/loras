@@ -1,0 +1,107 @@
+{% extends 'boutiqe/base.html' %}
+{% load static %}
+
+{% block title %}تسجيل الدخول - بوتيك لوراس{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="{% url 'boutiqe:home' %}" class="text-gray-500 hover:text-primary transition">الرئيسية</a>
+                    <svg class="mr-2 ml-2 h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-primary">تسجيل الدخول</span>
+                </li>
+            </ol>
+        </nav>
+        
+        <!-- Page Title -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">تسجيل الدخول</h1>
+            <p class="text-gray-600">قم بتسجيل الدخول للوصول إلى حسابك</p>
+        </div>
+        
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                {% if form.errors %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <strong>خطأ:</strong> الرجاء التحقق من اسم المستخدم وكلمة المرور.
+                    </div>
+                {% endif %}
+                
+                {% if next %}
+                    {% if user.is_authenticated %}
+                        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                            <strong>تنبيه:</strong> ليس لديك صلاحية للوصول إلى هذه الصفحة. للمتابعة، يرجى تسجيل الدخول بحساب يملك الصلاحية المطلوبة.
+                        </div>
+                    {% else %}
+                        <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+                            <strong>ملاحظة:</strong> يرجى تسجيل الدخول للوصول إلى هذه الصفحة.
+                        </div>
+                    {% endif %}
+                {% endif %}
+                
+                <form method="post" action="{% url 'boutiqe:login' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                    
+                    <div>
+                        <label for="username" class="block text-gray-700 font-medium mb-2">اسم المستخدم</label>
+                        <input type="text" id="username" name="username" autofocus required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="اسم المستخدم">
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-gray-700 font-medium mb-2">كلمة المرور</label>
+                        <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" placeholder="كلمة المرور">
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember_me" name="remember_me" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="remember_me" class="mr-2 block text-sm text-gray-700">تذكرني</label>
+                        </div>
+                        
+                        <a href="#" class="text-sm text-primary hover:text-secondary">نسيت كلمة المرور؟</a>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-md transition duration-300">
+                            تسجيل الدخول
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-6 text-center text-sm">
+                    <p class="text-gray-600">
+                        ليس لديك حساب؟ <a href="{% url 'boutiqe:register' %}" class="text-primary hover:text-secondary font-medium">إنشاء حساب جديد</a>
+                    </p>
+                </div>
+                
+                <div class="relative mt-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">أو تسجيل الدخول باستخدام</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <a href="#" class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fab fa-google text-red-600 ml-2"></i>
+                        جوجل
+                    </a>
+                    <a href="#" class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fab fa-facebook text-blue-600 ml-2"></i>
+                        فيسبوك
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

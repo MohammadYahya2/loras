@@ -1,0 +1,95 @@
+/* تصميم مخصص للإشعارات */
+.notification-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 200px;
+    max-width: 300px;
+    padding: 8px 16px;
+    background-color: #fff;
+    border-radius: 30px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 9999;
+    direction: rtl;
+    font-size: 0.85rem;
+    animation: slideInDown 0.3s forwards;
+}
+
+.notification-toast.hide {
+    animation: slideOutUp 0.3s forwards;
+}
+
+.notification-toast .icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.notification-toast .icon i {
+    color: white;
+    font-size: 10px;
+}
+
+.notification-toast .message {
+    flex-grow: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+.notification-toast .close {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0 8px;
+    cursor: pointer;
+    color: #999;
+    font-size: 10px;
+}
+
+/* أنواع الإشعارات */
+.notification-toast.success .icon {
+    background-color: #10B981;
+}
+
+.notification-toast.error .icon {
+    background-color: #EF4444;
+}
+
+.notification-toast.warning .icon {
+    background-color: #F59E0B;
+}
+
+.notification-toast.info .icon {
+    background-color: #3B82F6;
+}
+
+/* المؤثرات الحركية */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes slideOutUp {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+} 
