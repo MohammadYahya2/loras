@@ -1,0 +1,62 @@
+{% extends 'boutiqe/base.html' %}
+
+{% block content %}
+<!-- Quick View Template -->
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 max-w-4xl mx-auto">
+        <div class="md:flex">
+            <!-- Product Image -->
+            <div class="md:w-1/2 p-6 bg-gradient-to-br from-gray-50 to-gray-100">
+                <div class="product-images">
+                    <div class="main-image mb-4 overflow-hidden rounded-xl shadow-lg relative group">
+                        {% if product.get_main_image %}
+                            <img src="{{ product.get_main_image.image.url }}" alt="{{ product.name }}" class="w-full h-auto object-cover transform hover:scale-105 transition duration-700 ease-in-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        {% else %}
+                            <div class="w-full h-60 bg-gray-200 flex items-center justify-center rounded-lg">
+                                <p class="text-gray-400">لا توجد صورة</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Info -->
+            <div class="md:w-1/2 p-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ product.name }}</h1>
+                
+                <!-- Price -->
+                <div class="mb-4 bg-gray-50 p-3 rounded-lg border-r-4 border-primary shadow-sm">
+                    {% if product.discount_price %}
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold text-primary font-serif">₪{{ product.discount_price }}</span>
+                        <span class="text-gray-500 line-through mr-3 text-sm">₪{{ product.price }}</span>
+                    </div>
+                    <div class="mt-1 text-xs text-green-600 font-medium">
+                        <i class="fas fa-arrow-down mr-1"></i> توفير ₪{{ product.get_discount_amount }}
+                    </div>
+                    {% else %}
+                    <span class="text-2xl font-bold text-primary font-serif">₪{{ product.price }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Description -->
+                <div class="mb-4">
+                    <h3 class="text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">وصف المنتج</h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">{{ product.description|truncatewords:25 }}</p>
+                </div>
+                
+                <!-- Actions -->
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="{% url 'boutiqe:product_detail' slug=product.slug %}" class="bg-primary text-white py-3 px-4 rounded-lg flex items-center justify-center hover:bg-primary-dark transition text-sm font-medium">
+                        <i class="fas fa-eye mr-2"></i> عرض التفاصيل
+                    </a>
+                    <button type="button" class="add-to-cart-btn bg-secondary text-white py-3 px-4 rounded-lg flex items-center justify-center hover:bg-secondary-dark transition text-sm font-medium" data-product="{{ product.id }}">
+                        <i class="fas fa-shopping-cart mr-2"></i> إضافة للسلة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

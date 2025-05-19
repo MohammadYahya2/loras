@@ -1400,7 +1400,8 @@ def quick_view(request, product_id):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'boutiqe/parts/quick_view_modal.html', context)
     
-    return redirect('boutiqe:product_detail', slug=product.slug)
+    # Always use quick_view_modal.html instead of quick_view.html
+    return render(request, 'boutiqe/parts/quick_view_modal.html', context)
 
 # ===== لوحة تحكم الأدمن =====
 
