@@ -2616,36 +2616,7 @@ def placfwishliste_order(request):
     
     return redirect('boutiqe:checkout')
 
-def serve_media(request, path):
-    """
-    Serve media files.
-    This is needed in development environment.
-    In production, this should be handled by the web server.
-    """
-    from django.http import FileResponse
-    from django.conf import settings
-    import os
-    
-    file_path = os.path.join(settings.MEDIA_ROOT, path)
-    return FileResponse(open(file_path, 'rb'))
 
-def wishlist_items_api(request):
-    """
-    API endpoint to get the list of product IDs in the user's wishlist.
-    Used by the frontend to initialize wishlist button states.
-    """
-    product_ids = []
-    
-    if request.user.is_authenticated:
-        # For authenticated users, get wishlist items by user
-        wishlist_items = Wishlist.objects.filter(user=request.user)
-        product_ids = [item.product.id for item in wishlist_items]
-    elif request.session.session_key:
-        # For guests, get wishlist items by session
-        wishlist_items = Wishlist.objects.filter(session_key=request.session.session_key)
-        product_ids = [item.product.id for item in wishlist_items]
-    
-    return JsonResponse({'product_ids': product_ids})
 
 def cart_count(request):
     """

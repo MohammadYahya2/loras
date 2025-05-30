@@ -20,15 +20,14 @@
                     {% endif %}
                 </div>
                 
-                {% if product.images.count > 1 %}
-                <div class="thumbnail-images flex space-x-3 space-x-reverse rtl:space-x-reverse justify-center">
-                    {% for image in product.images.all|slice:":4" %}
-                        <div class="w-14 h-14 border-2 border-gray-200 hover:border-primary rounded-lg overflow-hidden cursor-pointer quick-view-thumbnail transition duration-300 hover:shadow-md" data-image="{% url 'boutiqe:serve_media' image.image.name %}">
-                            <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                <!-- Thumbnail images -->
+                <div class="flex mt-4 space-x-2 overflow-x-auto">
+                    {% for image in product.images.all %}
+                        <div class="flex-shrink-0 w-16 h-16 border border-gray-200 rounded overflow-hidden cursor-pointer transition duration-200 hover:shadow-md" data-image="{{ image.image.url }}">
+                            <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
                         </div>
                     {% endfor %}
                 </div>
-                {% endif %}
             </div>
             
             <!-- Badges -->

@@ -154,23 +154,13 @@
                         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1 group">
                             <a href="{% url 'boutiqe:product_detail' product.slug %}">
                                 <div class="relative h-64 overflow-hidden">
-                                    {% if product.images.first %}
-                                        {% with main_image=False %}
-                                            {% for image in product.images.all %}
-                                                {% if image.is_main and not main_image %}
-                                                    <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
-                                                    {% with main_image=True %}{% endwith %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            {% if not main_image %}
-                                                <img src="{% url 'boutiqe:serve_media' product.images.first.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% else %}
-                                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                            <i class="fas fa-image text-4xl text-gray-400"></i>
-                                        </div>
-                                    {% endif %}
+                                    {% for image in product.images.all %}
+                                        {% if image.is_main %}
+                                            <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                        {% endif %}
+                                    {% empty %}
+                                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                    {% endfor %}
                                     
                                     <!-- Badges -->
                                     {% if product.is_new %}
@@ -247,23 +237,13 @@
                                 <div class="md:w-1/3 relative">
                                     <a href="{% url 'boutiqe:product_detail' product.slug %}">
                                         <div class="relative h-64 md:h-full overflow-hidden">
-                                            {% if product.images.first %}
-                                                {% with main_image=False %}
-                                                    {% for image in product.images.all %}
-                                                        {% if image.is_main and not main_image %}
-                                                            <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
-                                                            {% with main_image=True %}{% endwith %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    {% if not main_image %}
-                                                        <img src="{% url 'boutiqe:serve_media' product.images.first.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
-                                                    {% endif %}
-                                                {% endwith %}
-                                            {% else %}
-                                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                    <i class="fas fa-image text-4xl text-gray-400"></i>
-                                                </div>
-                                            {% endif %}
+                                            {% for image in product.images.all %}
+                                                {% if image.is_main %}
+                                                    <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                                {% endif %}
+                                            {% empty %}
+                                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                            {% endfor %}
                                             
                                             <!-- Badges -->
                                             {% if product.is_new %}

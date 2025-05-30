@@ -163,7 +163,7 @@
                             <a href="{{ product.get_absolute_url }}" class="block relative overflow-hidden aspect-[3/4] group">
                                 {% if product.get_main_image %}
                                     <img 
-                                        src="{% url 'boutiqe:serve_media' product.get_main_image.image.name %}" 
+                                        src="{{ product.get_main_image.image.url }}" 
                                         alt="{{ product.name }}" 
                                         class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                                     >
@@ -223,7 +223,7 @@
                             <a href="{{ product.get_absolute_url }}" class="block relative overflow-hidden md:w-48 h-48 rounded-lg group">
                                 {% if product.get_main_image %}
                                     <img 
-                                        src="{% url 'boutiqe:serve_media' product.get_main_image.image.name %}" 
+                                        src="{{ product.get_main_image.image.url }}" 
                                         alt="{{ product.name }}" 
                                         class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                                     >

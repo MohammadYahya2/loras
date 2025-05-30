@@ -33,17 +33,17 @@
                 <div class="product-images">
                     <div class="main-image mb-4">
                         {% if product.get_main_image %}
-                            <img src="{% url 'boutiqe:serve_media' product.get_main_image.image.name %}" alt="{{ product.name }}" class="w-full h-auto rounded-lg">
+                            <img src="{{ product.get_main_image.image.url }}" alt="{{ product.name }}" class="w-full h-auto rounded-lg">
                         {% else %}
-                            <div class="w-full h-96 bg-gray-200 flex items-center justify-center rounded-lg">
-                                <p class="text-gray-400">لا توجد صورة</p>
+                            <div class="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-image text-6xl text-gray-400"></i>
                             </div>
                         {% endif %}
                     </div>
                     <div class="thumbnail-images flex space-x-2 space-x-reverse rtl:space-x-reverse">
                         {% for image in product.images.all %}
-                            <div class="w-24 h-24 border border-gray-200 rounded-md overflow-hidden cursor-pointer product-thumbnail" data-image="{% url 'boutiqe:serve_media' image.image.name %}">
-                                <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                            <div class="w-24 h-24 border border-gray-200 rounded-md overflow-hidden cursor-pointer product-thumbnail" data-image="{{ image.image.url }}">
+                                <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
                             </div>
                         {% endfor %}
                     </div>

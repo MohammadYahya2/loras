@@ -108,52 +108,6 @@ def place_order(request):
         messages.error(request, 'حدث خطأ أثناء إنشاء الطلب. يرجى المحاولة مرة أخرى لاحقًا.')
         return redirect('boutiqe:checkout')
 
-def serve_media(request, path):
-    """
-    Serve media files manually when MEDIA_URL doesn't work properly
-    """
-    import os, io
-    from django.conf import settings
-    from django.http import FileResponse, Http404
-    from PIL import Image, ImageDraw, ImageFont
-    
-    file_path = os.path.join(settings.MEDIA_ROOT, path)
-    
-    # If the file doesn't exist, create a dynamic placeholder
-    if not os.path.exists(file_path):
-        # Determine what type of placeholder to create based on the path
-        parts = path.split('/')
-        placeholder_type = "صورة غير متوفرة"
-        bg_color = (240, 240, 240)  # light gray
-        text_color = (100, 100, 100)  # dark gray
-        
-        if len(parts) > 1:
-            folder = parts[0]
-            if folder == 'categories':
-                placeholder_type = "فئة غير متوفرة"
-                bg_color = (255, 240, 240)  # light red
-                text_color = (220, 100, 100)  # dark red
-            elif folder == 'products':
-                placeholder_type = "منتج غير متوفر"
-                bg_color = (240, 255, 240)  # light green
-                text_color = (100, 200, 100)  # dark green
-        
-        # Create a simple image with text
-        img = Image.new('RGB', (400, 300), color=bg_color)
-        d = ImageDraw.Draw(img)
-        # Use a simple font since custom fonts might not be available
-        d.text((150, 150), placeholder_type, fill=text_color)
-        
-        # Convert image to a file-like object
-        img_io = io.BytesIO()
-        img.save(img_io, format='JPEG')
-        img_io.seek(0)
-        
-        # Return the image
-        return FileResponse(img_io, content_type='image/jpeg')
-    
-    return FileResponse(open(file_path, 'rb'))
-
 def checkout(request):
     # ... existing code ...
     

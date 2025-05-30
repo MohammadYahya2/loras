@@ -3,6 +3,7 @@
 import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
+from django.utils import timezone
 
 
 class Migration(migrations.Migration):
@@ -56,7 +57,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='orderitem',
             name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=81.0, verbose_name='تاريخ الإضافة'),
+            field=models.DateTimeField(auto_now_add=True, default=timezone.now, verbose_name='تاريخ الإضافة'),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -79,11 +80,25 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='cart',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('session_key__isnull', True), ('user__isnull', False)), models.Q(('session_key__isnull', False), ('user__isnull', True)), _connector='OR'), name='user_xor_session_cart'),
+            constraint=models.CheckConstraint(
+                check=models.Q(
+                    models.Q(('session_key__isnull', True), ('user__isnull', False)),
+                    models.Q(('session_key__isnull', False), ('user__isnull', True)),
+                    _connector='OR'
+                ),
+                name='user_xor_session_cart'
+            ),
         ),
         migrations.AddConstraint(
             model_name='wishlist',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('session_key__isnull', True), ('user__isnull', False)), models.Q(('session_key__isnull', False), ('user__isnull', True)), _connector='OR'), name='user_xor_session_wishlist'),
+            constraint=models.CheckConstraint(
+                check=models.Q(
+                    models.Q(('session_key__isnull', True), ('user__isnull', False)),
+                    models.Q(('session_key__isnull', False), ('user__isnull', True)),
+                    _connector='OR'
+                ),
+                name='user_xor_session_wishlist'
+            ),
         ),
         migrations.AddField(
             model_name='contactinfo',
@@ -105,6 +120,13 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='contactinfo',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('session_key__isnull', True), ('user__isnull', False)), models.Q(('session_key__isnull', False), ('user__isnull', True)), _connector='OR'), name='user_xor_session_contact'),
+            constraint=models.CheckConstraint(
+                check=models.Q(
+                    models.Q(('session_key__isnull', True), ('user__isnull', False)),
+                    models.Q(('session_key__isnull', False), ('user__isnull', True)),
+                    _connector='OR'
+                ),
+                name='user_xor_session_contact'
+            ),
         ),
     ]

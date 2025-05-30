@@ -124,23 +124,13 @@
                                         <!-- Product Image -->
                                         <div class="md:w-1/4 mb-4 md:mb-0">
                                             <div class="h-32 w-32 md:h-40 md:w-40 rounded-md overflow-hidden">
-                                                {% if item.product.images.first %}
-                                                    {% with main_image=False %}
-                                                        {% for image in item.product.images.all %}
-                                                            {% if image.is_main and not main_image %}
-                                                                <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
-                                                                {% with main_image=True %}{% endwith %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        {% if not main_image %}
-                                                            <img src="{% url 'boutiqe:serve_media' item.product.images.first.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                {% else %}
-                                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                        <i class="fas fa-image text-3xl text-gray-400"></i>
-                                                    </div>
-                                                {% endif %}
+                                                {% for image in item.product.images.all %}
+                                                    {% if image.is_main %}
+                                                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                                                    {% endif %}
+                                                {% empty %}
+                                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                                                {% endfor %}
                                             </div>
                                         </div>
                                         

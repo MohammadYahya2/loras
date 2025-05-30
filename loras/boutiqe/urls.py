@@ -83,12 +83,6 @@ urlpatterns = [
 
     # API endpoints
     path('api/cart-count/', views.cart_count, name='cart_count'),
-
-    # Manually serve media files
-    path('media/<path:path>', views.serve_media, name='serve_media'),
-
-    # New API endpoint for wishlist items
-    path('api/wishlist-items/', views.wishlist_items_api, name='wishlist_items_api'),
 ]
 
 if settings.DEBUG:

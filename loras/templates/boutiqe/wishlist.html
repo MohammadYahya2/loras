@@ -43,12 +43,12 @@
                                                     {% with main_image=False %}
                                                         {% for image in item.product.images.all %}
                                                             {% if image.is_main and not main_image %}
-                                                                <img src="{% url 'boutiqe:serve_media' image.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition duration-300 hover:scale-105">
+                                                                <img src="{{ image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition duration-300 hover:scale-105">
                                                                 {% with main_image=True %}{% endwith %}
                                                             {% endif %}
                                                         {% endfor %}
                                                         {% if not main_image %}
-                                                            <img src="{% url 'boutiqe:serve_media' item.product.images.first.image.name %}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition duration-300 hover:scale-105">
+                                                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition duration-300 hover:scale-105">
                                                         {% endif %}
                                                     {% endwith %}
                                                 {% else %}
